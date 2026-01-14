@@ -168,6 +168,9 @@ export const HomePage = () => {
 
   return (
     <div>
+      {/* Mobile Page Title */}
+      <h1 className="md:hidden font-serif font-black text-3xl mb-6 border-b-2 border-black pb-2">Home Page</h1>
+
       {/* Hero */}
       <BentoGrid articles={articles.slice(0, 4)} />
 
