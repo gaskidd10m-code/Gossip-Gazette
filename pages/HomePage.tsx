@@ -120,6 +120,69 @@ const Sidebar = () => (
   </aside>
 );
 
+// --- Mobile-Specific Components ---
+
+const MobileNewsItem = ({ article }: { article: Article }) => (
+  <Link to={`/article/${article.slug}`} className="flex gap-4 py-4 border-b border-gray-100 last:border-0 group">
+    <div className="flex-1">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-red-700 text-[10px] font-bold uppercase tracking-wide">{article.categoryName}</span>
+        <span className="text-gray-400 text-[10px]">•</span>
+        <span className="text-gray-400 text-[10px]">{new Date(article.publishedAt).toLocaleDateString()}</span>
+      </div>
+      <h3 className="font-serif font-bold text-lg leading-tight group-hover:text-red-700 transition-colors line-clamp-3">
+        {article.title}
+      </h3>
+    </div>
+    <div className="w-24 h-24 flex-shrink-0">
+      <img src={article.coverImage} className="w-full h-full object-cover rounded-sm bg-gray-100" loading="lazy" />
+    </div>
+  </Link>
+);
+
+const MobileNewsFeed = ({ articles }: { articles: Article[] }) => {
+  if (articles.length === 0) return null;
+  const [main, ...rest] = articles.slice(0, 6); // Top 6 stories
+
+  return (
+    <div className="md:hidden space-y-8 mb-12">
+      {/* Mobile Hero */}
+      <Link to={`/article/${main.slug}`} className="block group border-b border-gray-200 pb-6">
+        <div className="relative w-full aspect-video mb-4 overflow-hidden rounded-sm">
+          <img src={main.coverImage} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+          <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider rounded-sm shadow-sm">
+            Top Story
+          </div>
+        </div>
+        <h2 className="font-serif text-2xl font-black leading-tight mb-2 group-hover:text-red-700 transition-colors">
+          {main.title}
+        </h2>
+        <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+          {main.excerpt}
+        </p>
+        <div className="mt-3 flex items-center text-xs text-gray-400 font-bold">
+          <span>{main.authorName || 'Gossip Gazette'}</span>
+          <span className="mx-2">•</span>
+          <span>{new Date(main.publishedAt).toLocaleDateString()}</span>
+        </div>
+      </Link>
+
+      {/* Breaking News / Top Stories List */}
+      <div>
+        <h3 className="font-sans font-black text-lg uppercase tracking-widest mb-4 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+          Top Headlines
+        </h3>
+        <div className="flex flex-col">
+          {rest.map(article => (
+            <MobileNewsItem key={article.id} article={article} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const HomePage = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -169,10 +232,18 @@ export const HomePage = () => {
   return (
     <div>
       {/* Mobile Page Title */}
-      <h1 className="md:hidden font-serif font-black text-3xl mb-6 border-b-2 border-black pb-2">Home Page</h1>
+      <div className="md:hidden mb-6">
+        <h1 className="font-serif font-black text-3xl border-b-4 border-black pb-2 inline-block">Home Page</h1>
+        <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+      </div>
 
-      {/* Hero */}
-      <BentoGrid articles={articles.slice(0, 4)} />
+      {/* Desktop Hero */}
+      <div className="hidden md:block">
+        <BentoGrid articles={articles.slice(0, 4)} />
+      </div>
+
+      {/* Mobile News Feed (Replaces Hero on Mobile) */}
+      <MobileNewsFeed articles={articles} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Main Content Column */}
