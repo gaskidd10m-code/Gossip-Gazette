@@ -1,0 +1,10 @@
+node_modules
+.env
+.env.local
+dist
+server
+scripts
+*.html
+!index.html
+seed-neon.html
+add-articles.html
