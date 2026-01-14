@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Pool } from '@neondatabase/serverless';
 
+// Version: 2.0.0 - Consolidated serverless function (no external imports)
+
 // Types
 interface Article {
     id: string;
