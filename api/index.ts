@@ -234,7 +234,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { url } = req;
-    const path = url?.replace('/api', '') || '/';
+    let path = url?.replace('/api', '') || '/';
+
+    // Strip query parameters from path for routing matching
+    // e.g. "/articles?category=123" -> "/articles"
+    const queryIndex = path.indexOf('?');
+    if (queryIndex !== -1) {
+        path = path.substring(0, queryIndex);
+    }
 
     try {
         // Route handling
