@@ -400,6 +400,7 @@ async function handleSettings(req: VercelRequest, res: VercelResponse, path: str
 // --- SITEMAP HANDLER ---
 async function handleSitemap(req: VercelRequest, res: VercelResponse) {
     const articles = await db.getArticles();
+    const categories = await db.getCategories();
     const domain = 'https://gossipgazette.online';
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -424,6 +425,12 @@ async function handleSitemap(req: VercelRequest, res: VercelResponse) {
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
+    ${categories.map(category => `
+    <url>
+        <loc>${domain}/category/${category.slug}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>`).join('')}
     ${articles.map(article => `
     <url>
         <loc>${domain}/article/${article.slug}</loc>

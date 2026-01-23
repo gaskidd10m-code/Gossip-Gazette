@@ -69,7 +69,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
               <li><Link to="/" className="hover:text-red-700 transition-colors">Home</Link></li>
               {categories.map(cat => (
                 <li key={cat.id}>
-                  <Link to={`/?cat=${cat.id}`} className="hover:text-red-700 transition-colors">{cat.name}</Link>
+                  <Link to={`/category/${cat.slug}`} className="hover:text-red-700 transition-colors">{cat.name}</Link>
                 </li>
               ))}
               {/* "More" dropdown removed */}
@@ -103,7 +103,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
               <li><Link to="/" onClick={closeMenu} className="hover:text-red-700 block transition-colors">Home</Link></li>
               {categories.map(cat => (
                 <li key={cat.id}>
-                  <Link to={`/?cat=${cat.id}`} onClick={closeMenu} className="hover:text-red-700 block transition-colors">{cat.name}</Link>
+                  <Link to={`/category/${cat.slug}`} onClick={closeMenu} className="hover:text-red-700 block transition-colors">{cat.name}</Link>
                 </li>
               ))}
             </ul>
@@ -136,7 +136,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
             <ul className="text-sm text-gray-300 space-y-3">
               {categories.slice(0, 4).map(c => (
                 <li key={c.id}>
-                  <Link to={`/?cat=${c.id}`} className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">
+                  <Link to={`/category/${c.slug}`} className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">
                     {c.name}
                   </Link>
                 </li>

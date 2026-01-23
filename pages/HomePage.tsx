@@ -206,45 +206,35 @@ export const HomePage = () => {
   const [searchParams] = useSearchParams();
   const categoryFilter = searchParams.get('cat');
 
+  // Redirect legacy query params to new routes
   useEffect(() => {
-    // Parallel fetching for demo
+    if (categoryFilter) {
+      // Find category by ID to get slug - inefficient but robust for legacy support
+      api.getCategories().then(cats => {
+        const found = cats.find(c => c.id === categoryFilter);
+        if (found) {
+          window.location.replace(`/category/${found.slug}`);
+        }
+      });
+    }
+  }, [categoryFilter]);
+
+  // Parallel fetching for dashboard
+  useEffect(() => {
     const loadData = async () => {
-      const [allArticles, allCats] = await Promise.all([
-        categoryFilter ? api.getArticlesByCategory(categoryFilter) : api.getArticles(),
-        api.getCategories()
+      const [allArticles] = await Promise.all([
+        api.getArticles()
       ]);
       setArticles(allArticles);
-      setCategories(allCats);
     };
     loadData();
-  }, [categoryFilter]);
+  }, []);
 
   const sportsArticles = articles.filter(a => a.categoryName === 'Sports');
   const techArticles = articles.filter(a => a.categoryName === 'Tech');
 
-  // If filtered, show simple grid
-  if (categoryFilter) {
-    return (
-      <div className="container mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <h2 className="text-4xl font-black uppercase tracking-tight">{categories.find(c => c.id === categoryFilter)?.name || 'News'}</h2>
-          <div className="h-1 bg-black flex-grow"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
-          {articles.map(a => (
-            <Link key={a.id} to={`/article/${a.slug}`} className="block group h-full">
-              <div className="overflow-hidden mb-4 rounded-sm shadow-sm">
-                <img src={a.coverImage} className="w-full h-56 object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-              </div>
-              <span className="text-xs font-bold text-red-700 uppercase mb-2 block">{a.categoryName}</span>
-              <h3 className="font-serif font-bold text-2xl group-hover:underline leading-tight mb-3">{a.title}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">{a.excerpt}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // If filtered (should redirect, but render generic just in case)
+  if (categoryFilter) return null;
 
   return (
     <div>
