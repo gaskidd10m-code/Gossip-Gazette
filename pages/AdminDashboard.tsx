@@ -156,6 +156,19 @@ export const AdminDashboard = () => {
     setIsEditing(true);
   };
 
+  const isShortNews = currentArticle.tags.includes('type:short');
+
+  const toggleShortNews = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setCurrentArticle(prev => {
+      const newTags = prev.tags.filter(t => t !== 'type:short');
+      if (checked) {
+        newTags.push('type:short');
+      }
+      return { ...prev, tags: newTags };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (currentArticle.id) {
@@ -581,6 +594,21 @@ export const AdminDashboard = () => {
                   <option value="published">Published</option>
                   <option value="archived">Archived</option>
                 </select>
+              </div>
+
+              <div className="bg-white p-3 border border-gray-200 rounded-sm mb-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isShortNews}
+                    onChange={toggleShortNews}
+                    className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                  />
+                  <div>
+                    <span className="block text-sm font-bold">Short News</span>
+                    <span className="text-[10px] text-gray-400">Mark as bite-sized content (ideal for Sports)</span>
+                  </div>
+                </label>
               </div>
 
               <div>
