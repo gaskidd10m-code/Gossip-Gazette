@@ -39,6 +39,18 @@ interface Comment {
     status: 'pending' | 'approved' | 'rejected';
 }
 
+interface Author {
+    id: string;
+    name: string;
+    slug: string;
+    bio?: string;
+    photoUrl?: string;
+    email?: string;
+    twitterUrl?: string;
+    linkedinUrl?: string;
+    expertise?: string[];
+}
+
 // Database connection
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -87,6 +99,18 @@ const mapComment = (row: any): Comment => ({
     createdAt: row.created_at,
     parentId: row.parent_id,
     status: row.status as 'pending' | 'approved' | 'rejected'
+});
+
+const mapAuthor = (row: any): Author => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    bio: row.bio,
+    photoUrl: row.photo_url,
+    email: row.email,
+    twitterUrl: row.twitter_url,
+    linkedinUrl: row.linkedin_url,
+    expertise: row.expertise || []
 });
 
 // Database service functions
@@ -214,6 +238,25 @@ const db = {
             `INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2`,
             [key, value]
         );
+    },
+
+    // Authors
+    async getAuthors(): Promise<Author[]> {
+        const result = await executeSql(`SELECT * FROM authors ORDER BY name ASC`);
+        return result.map(mapAuthor);
+    },
+
+    async getAuthorBySlug(slug: string): Promise<Author | undefined> {
+        const result = await executeSql(`SELECT * FROM authors WHERE slug = $1`, [slug]);
+        return result.length ? mapAuthor(result[0]) : undefined;
+    },
+
+    async getArticlesByAuthor(authorSlug: string): Promise<Article[]> {
+        const result = await executeSql(
+            `SELECT * FROM articles WHERE author_slug = $1 ORDER BY published_at DESC`,
+            [authorSlug]
+        );
+        return result.map(mapArticle);
     }
 };
 
@@ -249,6 +292,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return await handleArticles(req, res, path);
         } else if (path.startsWith('/categories')) {
             return await handleCategories(req, res, path);
+        } else if (path.startsWith('/authors')) {
+            return await handleAuthors(req, res, path);
         } else if (path.startsWith('/comments')) {
             return await handleComments(req, res, path);
         } else if (path.startsWith('/sitemap')) {
@@ -397,6 +442,35 @@ async function handleSettings(req: VercelRequest, res: VercelResponse, path: str
     res.status(404).json({ error: 'Not found' });
 }
 
+// --- AUTHORS HANDLERS ---
+async function handleAuthors(req: VercelRequest, res: VercelResponse, path: string) {
+    const { method } = req;
+
+    // GET /authors
+    if (method === 'GET' && path === '/authors') {
+        const authors = await db.getAuthors();
+        return res.json(authors);
+    }
+
+    // GET /authors/:slug
+    const slugMatch = path.match(/^\/authors\/([^\/]+)$/);
+    if (method === 'GET' && slugMatch && !path.includes('/articles')) {
+        const author = await db.getAuthorBySlug(slugMatch[1]);
+        if (!author) return res.status(404).json({ error: 'Author not found' });
+        return res.json(author);
+    }
+
+    // GET /authors/:slug/articles
+    const articlesMatch = path.match(/^\/authors\/([^\/]+)\/articles$/);
+    if (method === 'GET' && articlesMatch) {
+        const articles = await db.getArticlesByAuthor(articlesMatch[1]);
+        return res.json(articles);
+    }
+
+    res.status(404).json({ error: 'Not found' });
+}
+
+
 // --- SITEMAP HANDLER ---
 async function handleSitemap(req: VercelRequest, res: VercelResponse) {
     const articles = await db.getArticles();
@@ -424,6 +498,16 @@ async function handleSitemap(req: VercelRequest, res: VercelResponse) {
         <loc>${domain}/terms-of-service</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>${domain}/about</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${domain}/contact</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     ${categories.map(category => `
     <url>

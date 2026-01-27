@@ -9,6 +9,19 @@ export interface User {
   avatarUrl?: string;
 }
 
+// Authors Collection (for E-E-A-T)
+export interface Author {
+  id: string;
+  name: string;
+  slug: string;
+  bio?: string;
+  photoUrl?: string;
+  email?: string;
+  twitterUrl?: string;
+  linkedinUrl?: string;
+  expertise?: string[];
+}
+
 // Categories Collection
 export interface Category {
   id: string;
@@ -26,6 +39,7 @@ export interface Article {
   coverImage: string;
   authorId: string;
   authorName: string; // Denormalized for simpler display
+  authorSlug?: string; // Reference to Author profile
   categoryId: string;
   categoryName: string; // Denormalized
   tags: string[];

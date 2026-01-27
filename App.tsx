@@ -10,6 +10,9 @@ import { LoginPage } from './pages/LoginPage';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { CategoryPage } from './pages/CategoryPage';
+import { AboutUs } from './pages/AboutUs';
+import { ContactUs } from './pages/ContactUs';
+import { AuthorPage } from './pages/AuthorPage';
 import { api } from './services/api';
 import { Category } from './types';
 
@@ -34,6 +37,9 @@ const App: React.FC = () => {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/author/:slug" element={<AuthorPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

@@ -40,6 +40,28 @@ export const api = {
     return res.json();
   },
 
+  // --- AUTHORS ---
+  // GET /api/authors/:slug
+  getAuthor: async (slug: string): Promise<any> => {
+    const res = await fetch(`/api/authors/${slug}`);
+    if (!res.ok) throw new Error('Author not found');
+    return res.json();
+  },
+
+  // GET /api/authors/:slug/articles
+  getAuthorArticles: async (slug: string): Promise<Article[]> => {
+    const res = await fetch(`/api/authors/${slug}/articles`);
+    if (!res.ok) return [];
+    return res.json();
+  },
+
+  // GET /api/authors
+  getAllAuthors: async (): Promise<any[]> => {
+    const res = await fetch('/api/authors');
+    if (!res.ok) return [];
+    return res.json();
+  },
+
   // POST /api/categories (Admin)
   createCategory: async (name: string): Promise<Category> => {
     const res = await fetch('/api/categories', {

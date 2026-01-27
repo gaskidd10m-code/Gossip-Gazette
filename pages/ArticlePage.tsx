@@ -192,6 +192,36 @@ export const ArticlePage = () => {
         <title>{article.title} - Gossip Gazette</title>
         <meta name="description" content={article.excerpt} />
         <link rel="canonical" href={`https://gossipgazette.online/article/${article.slug}`} />
+
+        {/* Structured Data for SEO (JSON-LD) */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "headline": article.title,
+            "description": article.excerpt,
+            "image": `https://gossipgazette.online${article.coverImage}`,
+            "datePublished": article.publishedAt,
+            "dateModified": article.publishedAt,
+            "author": {
+              "@type": "Person",
+              "name": article.authorName,
+              "url": article.authorSlug ? `https://gossipgazette.online/author/${article.authorSlug}` : undefined
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Gossip Gazette",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://gossipgazette.online/logo.png"
+              }
+            },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": `https://gossipgazette.online/article/${article.slug}`
+            }
+          })}
+        </script>
       </Helmet>
       {/* Admin Quick Edit Button */}
       {isAdmin && (
@@ -258,8 +288,23 @@ export const ArticlePage = () => {
 
             <div className="flex items-center gap-3 md:gap-4 pt-3 md:pt-4 border-t border-gray-200">
               <div>
-                <p className="font-bold text-sm font-sans uppercase">By <span className="text-red-700">{article.authorName}</span></p>
-                <p className="text-xs text-gray-500">{new Date(article.publishedAt).toLocaleDateString()} • 5 min read</p>
+                <p className="font-bold text-sm font-sans uppercase">
+                  By{' '}
+                  {article.authorSlug ? (
+                    <Link to={`/author/${article.authorSlug}`} className="text-red-700 hover:underline">
+                      {article.authorName}
+                    </Link>
+                  ) : (
+                    <span className="text-red-700">{article.authorName}</span>
+                  )}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date(article.publishedAt).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })} • 5 min read
+                </p>
               </div>
             </div>
           </header>

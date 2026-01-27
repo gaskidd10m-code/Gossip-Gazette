@@ -148,8 +148,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           <div>
             <h4 className="font-bold uppercase tracking-widest mb-6 text-xs text-gray-500">Company</h4>
             <ul className="text-sm text-gray-300 space-y-3">
-              <li><Link to="#" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">About</Link></li>
-              <li><a href="mailto:gossipgazettegh@gmail.com" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Contact</a></li>
+              <li><Link to="/about" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">About</Link></li>
+              <li><Link to="/contact" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Contact</Link></li>
             </ul>
           </div>
 
