@@ -109,20 +109,20 @@ export const ContactUs: React.FC = () => {
                             <h3 className="font-bold text-lg mb-2">📧 Email</h3>
                             <p className="text-sm mb-1">
                                 <strong>General Inquiries:</strong>{' '}
-                                <a href="mailto:gossipgazettegh@gmail.com" className="text-blue-500 hover:underline">
-                                    gossipgazettegh@gmail.com
+                                <a href="mailto:bytecode@gmail.com" className="text-blue-500 hover:underline">
+                                    bytecode@gmail.com
                                 </a>
                             </p>
                             <p className="text-sm mb-1">
                                 <strong>Editorial:</strong>{' '}
-                                <a href="mailto:editorial@gossipgazettegh.com" className="text-blue-500 hover:underline">
-                                    editorial@gossipgazettegh.com
+                                <a href="mailto:editorial@bytecode.com" className="text-blue-500 hover:underline">
+                                    editorial@bytecode.com
                                 </a>
                             </p>
                             <p className="text-sm">
                                 <strong>Advertising:</strong>{' '}
-                                <a href="mailto:ads@gossipgazettegh.com" className="text-blue-500 hover:underline">
-                                    ads@gossipgazettegh.com
+                                <a href="mailto:ads@bytecode.com" className="text-blue-500 hover:underline">
+                                    ads@bytecode.com
                                 </a>
                             </p>
                         </div>
@@ -130,9 +130,9 @@ export const ContactUs: React.FC = () => {
                         <div>
                             <h3 className="font-bold text-lg mb-2">📍 Address</h3>
                             <p className="text-sm">
-                                Gossip Gazette Media<br />
-                                PO Box 12345<br />
-                                Accra, Ghana
+                                Bytecode Media / Gossip Gazette<br />
+                                Accra, Greater Accra<br />
+                                Ghana
                             </p>
                         </div>
 

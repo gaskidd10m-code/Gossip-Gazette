@@ -43,46 +43,27 @@ export const AboutUs: React.FC = () => {
 
                 <section className="mb-8">
                     <h2 className="text-2xl font-semibold mt-6 mb-3">Editorial Team</h2>
-                    <p className="mb-4">Our newsroom is led by experienced journalists with expertise across multiple domains:</p>
+                    <p className="mb-4">Gossip Gazette is managed by Bytecode, a digital media team committed to quality journalism:</p>
 
                     <div className="space-y-6 mt-6">
                         <div className="border-l-4 border-red-700 pl-4">
-                            <h3 className="font-bold text-lg">Sarah Mitchell</h3>
-                            <p className="text-sm text-gray-600 mb-2">Editor-in-Chief</p>
+                            <h3 className="font-bold text-lg">Bytecode Media Team</h3>
+                            <p className="text-sm text-gray-600 mb-2">Publisher & Editorial Management</p>
                             <p className="text-sm">
-                                Sarah brings over 10 years of digital journalism experience, previously serving as Senior Editor
-                                at TechDaily and Contributing Writer for Global Business Review. She holds a Master's degree in
-                                Journalism from Columbia University.
+                                Based in Accra, Ghana, Bytecode manages the editorial operations of Gossip Gazette.
+                                Our team combines technology expertise with journalism to deliver quality digital news content.
+                                We specialize in technology, business, politics, sports, and entertainment coverage with a focus
+                                on original analysis and engaging storytelling.
                             </p>
                         </div>
 
                         <div className="border-l-4 border-red-700 pl-4">
-                            <h3 className="font-bold text-lg">Marcus Chen</h3>
-                            <p className="text-sm text-gray-600 mb-2">Technology Editor</p>
+                            <h3 className="font-bold text-lg">Our Editorial Standards</h3>
+                            <p className="text-sm text-gray-600 mb-2">Commitment to Quality</p>
                             <p className="text-sm">
-                                With a background in computer science and 8 years covering the tech industry, Marcus specializes
-                                in emerging technologies, AI, and cybersecurity. He previously worked as a Technology Correspondent
-                                for The Digital Times.
-                            </p>
-                        </div>
-
-                        <div className="border-l-4 border-red-700 pl-4">
-                            <h3 className="font-bold text-lg">Elena Rodriguez</h3>
-                            <p className="text-sm text-gray-600 mb-2">Business & Politics Reporter</p>
-                            <p className="text-sm">
-                                Elena covers business trends, market analysis, and political developments. She has 7 years of
-                                experience in financial journalism and holds an MBA from Harvard Business School. Her work has
-                                appeared in Financial Chronicle and Business Insider.
-                            </p>
-                        </div>
-
-                        <div className="border-l-4 border-red-700 pl-4">
-                            <h3 className="font-bold text-lg">James Brooks</h3>
-                            <p className="text-sm text-gray-600 mb-2">Sports & Entertainment Writer</p>
-                            <p className="text-sm">
-                                James brings passion and analytical insight to sports and entertainment coverage. With 6 years
-                                in sports journalism, he's covered everything from local leagues to international championships.
-                                BA in Sports Journalism from Northwestern University.
+                                We maintain strict editorial guidelines for accuracy, fairness, and balanced reporting.
+                                Our content is thoroughly researched and fact-checked before publication. We clearly distinguish
+                                between news reporting, analysis, and opinion pieces to maintain transparency with our readers.
                             </p>
                         </div>
                     </div>
@@ -91,11 +72,11 @@ export const AboutUs: React.FC = () => {
                 <section className="mb-8">
                     <h2 className="text-2xl font-semibold mt-6 mb-3">Contact Information</h2>
                     <div className="bg-gray-50 p-6 rounded-lg">
-                        <p className="mb-2"><strong>Email:</strong> <a href="mailto:gossipgazettegh@gmail.com" className="text-blue-500 hover:underline">gossipgazettegh@gmail.com</a></p>
-                        <p className="mb-2"><strong>General Inquiries:</strong> gossipgazettegh@gmail.com</p>
-                        <p className="mb-2"><strong>Editorial:</strong> editorial@gossipgazettegh.com</p>
-                        <p className="mb-2"><strong>Advertising:</strong> ads@gossipgazettegh.com</p>
-                        <p className="mb-4"><strong>Address:</strong> PO Box 12345, Accra, Ghana</p>
+                        <p className="mb-2"><strong>Email:</strong> <a href="mailto:bytecode@gmail.com" className="text-blue-500 hover:underline">bytecode@gmail.com</a></p>
+                        <p className="mb-2"><strong>General Inquiries:</strong> bytecode@gmail.com</p>
+                        <p className="mb-2"><strong>Editorial:</strong> editorial@bytecode.com</p>
+                        <p className="mb-2"><strong>Advertising:</strong> ads@bytecode.com</p>
+                        <p className="mb-4"><strong>Address:</strong> Accra, Greater Accra, Ghana</p>
                         <p className="text-sm text-gray-600">
                             For specific inquiries, please visit our <Link to="/contact" className="text-blue-500 hover:underline">Contact page</Link>.
                         </p>
