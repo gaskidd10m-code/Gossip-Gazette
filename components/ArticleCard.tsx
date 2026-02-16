@@ -46,7 +46,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isExpanded, o
             // Fix for "code showing": render HTML content safely
             return (
                 <div
-                    className="whitespace-pre-line [&_p]:mb-4 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:mt-4"
+                    className="[&_p]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:mt-4"
                     dangerouslySetInnerHTML={{ __html: article.content }}
                 />
             );
