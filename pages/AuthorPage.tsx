@@ -4,11 +4,19 @@ import { Helmet } from 'react-helmet-async';
 import { api } from '../services/api';
 import { Author, Article } from '../types';
 
+import { ArticleCard } from '../components/ArticleCard';
+
 export const AuthorPage: React.FC = () => {
     const { slug } = useParams<{ slug: string }>();
     const [author, setAuthor] = useState<Author | null>(null);
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
+    const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
+
+    const handleToggleArticle = (articleId: string) => {
+        setExpandedArticleId(prev => prev === articleId ? null : articleId);
+    };
+
 
     useEffect(() => {
         const fetchAuthorData = async () => {
@@ -143,44 +151,13 @@ export const AuthorPage: React.FC = () => {
                 ) : (
                     <div className="grid gap-6">
                         {articles.map((article) => (
-                            <article
+                            <ArticleCard
                                 key={article.id}
-                                className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
-                            >
-                                <Link to={`/article/${article.slug}`} className="flex flex-col md:flex-row">
-                                    {/* Article Image */}
-                                    <div className="md:w-64 h-48 md:h-auto flex-shrink-0">
-                                        <img
-                                            src={article.coverImage}
-                                            alt={article.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-
-                                    {/* Article Content */}
-                                    <div className="p-6 flex-grow">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-xs font-semibold text-red-700 uppercase tracking-wider">
-                                                {article.categoryName}
-                                            </span>
-                                            <span className="text-gray-400">•</span>
-                                            <time className="text-xs text-gray-500">
-                                                {new Date(article.publishedAt).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    year: 'numeric'
-                                                })}
-                                            </time>
-                                        </div>
-                                        <h3 className="text-xl font-bold mb-2 hover:text-red-700 transition-colors">
-                                            {article.title}
-                                        </h3>
-                                        <p className="text-gray-600 text-sm line-clamp-2">
-                                            {article.excerpt}
-                                        </p>
-                                    </div>
-                                </Link>
-                            </article>
+                                article={article}
+                                isExpanded={expandedArticleId === article.id}
+                                onToggle={() => handleToggleArticle(article.id)}
+                                variant="list"
+                            />
                         ))}
                     </div>
                 )}

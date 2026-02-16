@@ -4,6 +4,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { Article } from '../types';
 
+import { ArticleCard } from '../components/ArticleCard';
+
 export const ArchivePage: React.FC = () => {
     const [searchParams] = useSearchParams();
     const yearParam = searchParams.get('year');
@@ -12,6 +14,12 @@ export const ArchivePage: React.FC = () => {
     const [archiveDates, setArchiveDates] = useState<{ year: number, month: number, count: number }[]>([]);
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
+    const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
+
+    const handleToggleArticle = (articleId: string) => {
+        setExpandedArticleId(prev => prev === articleId ? null : articleId);
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -108,41 +116,18 @@ export const ArchivePage: React.FC = () => {
                     ) : (
                         <div className="grid gap-8">
                             {articles.map((article) => (
-                                <div key={article.id} className="flex flex-col md:flex-row gap-6 border-b border-gray-100 pb-8">
-                                    <div className="md:w-1/3">
-                                        <Link to={`/article/${article.slug}`}>
-                                            <img
-                                                src={article.coverImage}
-                                                alt={article.title}
-                                                className="w-full h-48 object-cover rounded shadow-sm hover:opacity-90 transition-opacity"
-                                            />
-                                        </Link>
-                                    </div>
-                                    <div className="md:w-2/3">
-                                        <Link to={`/category/${article.categoryName.toLowerCase()}`} className="text-red-700 font-bold text-xs uppercase tracking-widest mb-2 block">
-                                            {article.categoryName}
-                                        </Link>
-                                        <Link to={`/article/${article.slug}`} className="hover:text-red-700 transition-colors">
-                                            <h2 className="text-2xl font-bold font-serif mb-2 leading-tight">{article.title}</h2>
-                                        </Link>
-                                        <div className="flex items-center text-gray-400 text-xs mb-3 space-x-2">
-                                            <span>By {article.authorName}</span>
-                                            <span>•</span>
-                                            <span>{new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                        </div>
-                                        <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3">
-                                            {article.excerpt}
-                                        </p>
-                                        <Link to={`/article/${article.slug}`} className="text-sm font-bold border-b-2 border-black pb-0.5 hover:text-red-700 hover:border-red-700 transition-colors">
-                                            Read Full Story
-                                        </Link>
-                                    </div>
-                                </div>
+                                <ArticleCard
+                                    key={article.id}
+                                    article={article}
+                                    isExpanded={expandedArticleId === article.id}
+                                    onToggle={() => handleToggleArticle(article.id)}
+                                    variant="list"
+                                />
                             ))}
                         </div>
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };

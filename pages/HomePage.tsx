@@ -1,132 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Article, Category } from '../types';
+import { Article } from '../types';
 import { api } from '../services/api';
-
-// --- Expandable Article Component ---
-interface ExpandableArticleProps {
-  article: Article;
-  isExpanded: boolean;
-  onToggle: () => void;
-  variant?: 'hero' | 'card' | 'list' | 'mobile';
-}
-
-const ExpandableArticle: React.FC<ExpandableArticleProps> = ({ article, isExpanded, onToggle, variant = 'list' }) => {
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isExpanded && contentRef.current) {
-      contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [isExpanded]);
-
-  // Hero variant (large featured article)
-  if (variant === 'hero') {
-    return (
-      <div ref={contentRef} className="group relative">
-        <div className="overflow-hidden mb-6 rounded-sm shadow-md">
-          <img src={article.coverImage} alt={article.title} className="w-full h-64 md:h-[500px] object-contain bg-gray-100 transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-        </div>
-        <div className="flex items-center gap-3 text-red-700 text-xs font-bold uppercase tracking-widest mb-4">
-          <span className="bg-red-50 px-3 py-1.5 rounded">{article.categoryName}</span>
-          <span className="text-gray-400">•</span>
-          <span className="text-gray-500">{new Date(article.publishedAt).toLocaleDateString()}</span>
-        </div>
-        <h2 className="font-serif text-3xl md:text-5xl font-black leading-tight mb-6">
-          {article.title}
-        </h2>
-        <div className={`font-serif text-gray-700 leading-relaxed text-lg md:text-xl mb-6 transition-all duration-500 ${isExpanded ? 'whitespace-pre-line' : ''}`}>
-          {isExpanded ? article.content : article.excerpt}
-        </div>
-        <button
-          onClick={onToggle}
-          className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 font-bold text-sm uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
-        >
-          {isExpanded ? '← Read Less' : 'Read More →'}
-        </button>
-      </div>
-    );
-  }
-
-  // Card variant (grid items)
-  if (variant === 'card') {
-    return (
-      <div ref={contentRef} className="group block h-full flex flex-col">
-        <div className="overflow-hidden mb-4 rounded-sm shadow-sm">
-          <img src={article.coverImage} className="w-full h-48 object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-        </div>
-        <h4 className="font-serif font-bold text-xl mb-3 leading-tight flex-grow">{article.title}</h4>
-        <div className={`text-sm text-gray-600 mb-4 leading-relaxed transition-all duration-500 ${isExpanded ? 'whitespace-pre-line' : ''}`}>
-          {isExpanded ? article.content : `${article.excerpt.substring(0, 100)}...`}
-        </div>
-        <button
-          onClick={onToggle}
-          className="text-xs text-black font-bold uppercase hover:text-red-700 transition-colors text-left"
-        >
-          {isExpanded ? '↑ Read Less' : 'Read More →'}
-        </button>
-      </div>
-    );
-  }
-
-  // Mobile variant
-  if (variant === 'mobile') {
-    return (
-      <div ref={contentRef} className="flex gap-4 py-5 border-b border-gray-100 last:border-0 group flex-col">
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-red-700 text-[10px] font-bold uppercase tracking-wide">{article.categoryName}</span>
-              <span className="text-gray-400 text-[10px]">•</span>
-              <span className="text-gray-400 text-[10px]">{new Date(article.publishedAt).toLocaleDateString()}</span>
-            </div>
-            <h3 className="font-serif font-bold text-lg leading-tight">
-              {article.title}
-            </h3>
-          </div>
-          <div className="w-24 h-24 flex-shrink-0">
-            <img src={article.coverImage} className="w-full h-full object-cover rounded-sm bg-gray-100" loading="lazy" />
-          </div>
-        </div>
-        {isExpanded && (
-          <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line mt-2">
-            {article.content}
-          </div>
-        )}
-        <button
-          onClick={onToggle}
-          className="text-xs text-red-700 font-bold uppercase text-left hover:underline transition-all"
-        >
-          {isExpanded ? '↑ Read Less' : 'Read More →'}
-        </button>
-      </div>
-    );
-  }
-
-  // List variant (default)
-  return (
-    <div ref={contentRef} className="flex flex-col md:flex-row gap-6 items-start group border-b border-gray-100 pb-8 mb-8 last:border-0 last:pb-0 last:mb-0">
-      <div className="w-full md:w-64 h-40 flex-shrink-0 overflow-hidden rounded-sm shadow-sm">
-        <img src={article.coverImage} className="w-full h-full object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-      </div>
-      <div className="flex-1">
-        <span className="text-red-700 text-[10px] font-bold uppercase mb-2 block tracking-widest">{article.categoryName}</span>
-        <h4 className="font-serif font-bold text-2xl mb-4 leading-tight">{article.title}</h4>
-        <div className={`text-sm text-gray-700 leading-relaxed mb-4 transition-all duration-500 ${isExpanded ? 'whitespace-pre-line' : ''}`}>
-          {isExpanded ? article.content : article.excerpt}
-        </div>
-        <p className="text-xs text-gray-400 font-bold mb-4">By {article.authorName} • {new Date(article.publishedAt).toLocaleDateString()}</p>
-        <button
-          onClick={onToggle}
-          className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
-        >
-          {isExpanded ? '← Read Less' : 'Read More →'}
-        </button>
-      </div>
-    </div>
-  );
-};
+import { ArticleCard } from '../components/ArticleCard';
 
 // --- Sub-components for Layouts ---
 
@@ -138,7 +15,7 @@ const BentoGrid = ({ articles, expandedId, onToggle }: { articles: Article[]; ex
     <div className="grid grid-cols-1 md:grid-cols-12 gap-1 md:gap-8 mb-16 border-b border-gray-200 pb-16">
       {/* Main Feature */}
       <div className="md:col-span-8">
-        <ExpandableArticle
+        <ArticleCard
           article={main}
           isExpanded={expandedId === main.id}
           onToggle={() => onToggle(main.id)}
@@ -148,14 +25,14 @@ const BentoGrid = ({ articles, expandedId, onToggle }: { articles: Article[]; ex
 
       {/* Sub Features Column */}
       <div className="md:col-span-4 flex flex-col gap-8 border-t md:border-t-0 md:border-l border-gray-100 pt-8 md:pt-0 md:pl-8">
-        <ExpandableArticle
+        <ArticleCard
           article={sub1}
           isExpanded={expandedId === sub1.id}
           onToggle={() => onToggle(sub1.id)}
           variant="card"
         />
         <div className="w-full h-px bg-gray-100"></div>
-        <ExpandableArticle
+        <ArticleCard
           article={sub2}
           isExpanded={expandedId === sub2.id}
           onToggle={() => onToggle(sub2.id)}
@@ -171,14 +48,14 @@ const SectionTech = ({ articles, expandedId, onToggle }: { articles: Article[]; 
     <div className="flex items-end justify-between border-b-2 border-black mb-8 pb-2">
       <h3 className="font-sans font-black text-2xl uppercase tracking-widest">Technology</h3>
     </div>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="space-y-8">
       {articles.slice(0, 3).map(article => (
-        <ExpandableArticle
+        <ArticleCard
           key={article.id}
           article={article}
           isExpanded={expandedId === article.id}
           onToggle={() => onToggle(article.id)}
-          variant="card"
+          variant="list"
         />
       ))}
     </div>
@@ -196,13 +73,16 @@ const SectionSports = ({ articles, expandedId, onToggle }: { articles: Article[]
         {articles.map(article => (
           <div key={article.id} className="min-w-[280px] md:min-w-[350px] snap-center group">
             <div className="relative h-56 w-full mb-4 overflow-hidden rounded-sm border border-gray-800">
-              <img src={article.coverImage} className="absolute inset-0 w-full h-full object-contain bg-gray-900 opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" loading="lazy" />
+              <img src={article.coverImage} className="absolute inset-0 w-full h-full object-contain bg-gray-900 opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" loading="lazy" alt={article.title} />
               <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-sm shadow">Top Story</div>
             </div>
             <h4 className="font-bold text-lg leading-tight mb-2">{article.title}</h4>
             <p className="text-xs text-gray-500 mb-3">{new Date(article.publishedAt).toLocaleDateString()}</p>
             {expandedId === article.id && (
-              <p className="text-sm text-gray-300 leading-relaxed mb-3 whitespace-pre-line">{article.content}</p>
+              <div
+                className="text-sm text-gray-300 leading-relaxed mb-3 whitespace-pre-line"
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              />
             )}
             <button
               onClick={() => onToggle(article.id)}
@@ -264,7 +144,7 @@ const MobileNewsFeed = ({ articles, expandedId, onToggle }: { articles: Article[
     <div className="md:hidden space-y-8 mb-12">
       {/* Mobile Hero */}
       <div className="border-b border-gray-200 pb-6">
-        <ExpandableArticle
+        <ArticleCard
           article={main}
           isExpanded={expandedId === main.id}
           onToggle={() => onToggle(main.id)}
@@ -280,7 +160,7 @@ const MobileNewsFeed = ({ articles, expandedId, onToggle }: { articles: Article[
         </h3>
         <div className="flex flex-col">
           {rest.map(article => (
-            <ExpandableArticle
+            <ArticleCard
               key={article.id}
               article={article}
               isExpanded={expandedId === article.id}
@@ -367,7 +247,7 @@ export const HomePage = () => {
               <h3 className="font-sans font-black text-xl uppercase tracking-widest">Latest Stories</h3>
             </div>
             {articles.slice(3, 15).map(article => (
-              <ExpandableArticle
+              <ArticleCard
                 key={article.id}
                 article={article}
                 isExpanded={expandedArticleId === article.id}

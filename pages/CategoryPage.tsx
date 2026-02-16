@@ -3,12 +3,14 @@ import { Link, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Article, Category } from '../types';
 import { api } from '../services/api';
+import { ArticleCard } from '../components/ArticleCard';
 
 export const CategoryPage = () => {
     const { slug } = useParams<{ slug: string }>();
     const [articles, setArticles] = useState<Article[]>([]);
     const [category, setCategory] = useState<Category | null>(null);
     const [loading, setLoading] = useState(true);
+    const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -35,6 +37,10 @@ export const CategoryPage = () => {
             fetchData();
         }
     }, [slug]);
+
+    const handleToggleArticle = (articleId: string) => {
+        setExpandedArticleId(prev => prev === articleId ? null : articleId);
+    };
 
     if (loading) {
         return <div className="container mx-auto py-20 text-center font-serif">Loading...</div>;
@@ -63,16 +69,15 @@ export const CategoryPage = () => {
             </div>
 
             {articles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
+                <div className="space-y-12">
                     {articles.map(a => (
-                        <Link key={a.id} to={`/article/${a.slug}`} className="block group h-full">
-                            <div className="overflow-hidden mb-4 rounded-sm shadow-sm">
-                                <img src={a.coverImage} alt={a.title} className="w-full h-56 object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                            </div>
-                            <span className="text-xs font-bold text-red-700 uppercase mb-2 block">{a.categoryName}</span>
-                            <h3 className="font-serif font-bold text-2xl group-hover:underline leading-tight mb-3">{a.title}</h3>
-                            <p className="text-gray-600 text-sm leading-relaxed">{a.excerpt}</p>
-                        </Link>
+                        <ArticleCard
+                            key={a.id}
+                            article={a}
+                            isExpanded={expandedArticleId === a.id}
+                            onToggle={() => handleToggleArticle(a.id)}
+                            variant="list"
+                        />
                     ))}
                 </div>
             ) : (

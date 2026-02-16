@@ -1,35 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Article } from '../types';
 import { api } from '../services/api';
-
-// Helper component to highlight matching text
-const Highlight = ({ text, highlight }: { text: string; highlight: string }) => {
-  if (!highlight.trim()) {
-    return <>{text}</>;
-  }
-  // Split text by the query, case-insensitive
-  const regex = new RegExp(`(${highlight})`, 'gi');
-  const parts = text.split(regex);
-
-  return (
-    <>
-      {parts.map((part, i) =>
-        regex.test(part) ? (
-          <span key={i} className="bg-yellow-200 text-black">{part}</span>
-        ) : (
-          <span key={i}>{part}</span>
-        )
-      )}
-    </>
-  );
-};
+import { ArticleCard } from '../components/ArticleCard';
 
 export const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
+  const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
 
   useEffect(() => {
     const doSearch = async () => {
@@ -44,6 +24,10 @@ export const SearchPage = () => {
     };
     doSearch();
   }, [query]);
+
+  const handleToggleArticle = (articleId: string) => {
+    setExpandedArticleId(prev => prev === articleId ? null : articleId);
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -61,21 +45,14 @@ export const SearchPage = () => {
       ) : (
         <div className="space-y-8">
           {results.map(article => (
-            <Link key={article.id} to={`/article/${article.slug}`} className="flex flex-col md:flex-row gap-6 group border-b border-gray-100 pb-8 last:border-0">
-              <div className="w-full md:w-64 h-40 flex-shrink-0 overflow-hidden">
-                <img src={article.coverImage} alt={article.title} className="w-full h-full object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-              </div>
-              <div className="flex-1">
-                <span className="text-red-700 text-xs font-bold uppercase mb-2 block">{article.categoryName}</span>
-                <h3 className="font-serif text-2xl font-bold mb-3 group-hover:underline leading-tight">
-                  <Highlight text={article.title} highlight={query} />
-                </h3>
-                <p className="text-gray-600 leading-relaxed text-sm mb-2">
-                  <Highlight text={article.excerpt} highlight={query} />
-                </p>
-                <span className="text-xs text-gray-400 font-bold">{new Date(article.publishedAt).toLocaleDateString()}</span>
-              </div>
-            </Link>
+            <ArticleCard
+              key={article.id}
+              article={article}
+              isExpanded={expandedArticleId === article.id}
+              onToggle={() => handleToggleArticle(article.id)}
+              variant="list"
+              searchQuery={query}
+            />
           ))}
         </div>
       )}

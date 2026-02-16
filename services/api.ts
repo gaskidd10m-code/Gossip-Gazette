@@ -1,4 +1,4 @@
-import { Article, ArticleFormData, Category, Comment } from '../types';
+import { Article, ArticleFormData, Author, Category, Comment } from '../types';
 const LS_KEYS = {
   AUTH: 'gg_auth'
 };
@@ -42,7 +42,7 @@ export const api = {
 
   // --- AUTHORS ---
   // GET /api/authors/:slug
-  getAuthor: async (slug: string): Promise<any> => {
+  getAuthor: async (slug: string): Promise<Author> => {
     const res = await fetch(`/api/authors/${slug}`);
     if (!res.ok) throw new Error('Author not found');
     return res.json();
@@ -56,7 +56,7 @@ export const api = {
   },
 
   // GET /api/authors
-  getAllAuthors: async (): Promise<any[]> => {
+  getAllAuthors: async (): Promise<Author[]> => {
     const res = await fetch('/api/authors');
     if (!res.ok) return [];
     return res.json();
