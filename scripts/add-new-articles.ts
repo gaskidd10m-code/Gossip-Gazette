@@ -133,30 +133,57 @@ const newArticles = [
 async function addArticles() {
     console.log('Starting to add articles to database...\n');
 
-    for (const article of newArticles) {
-        try {
-            const response = await fetch(`${API_URL}/articles`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(article),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log(`✓ Added: ${article.title}`);
-            } else {
-                const error = await response.text();
-                console.error(`✗ Failed to add "${article.title}": ${error}`);
-            }
-        } catch (error) {
-            console.error(`✗ Error adding "${article.title}":`, error);
+    try {
+        // 1. Fetch categories first
+        console.log('Fetching categories...');
+        const catResponse = await fetch(`${API_URL}/categories`);
+        if (!catResponse.ok) {
+            throw new Error(`Failed to fetch categories: ${catResponse.statusText}`);
         }
-    }
+        const categories = await catResponse.json();
+        console.log(`Found ${categories.length} categories.`);
 
-    console.log('\n✓ Finished adding articles!');
-    console.log(`Total articles processed: ${newArticles.length}`);
+        // Map Name -> ID
+        const categoryMap = new Map(categories.map((c: any) => [c.name, c.id]));
+
+        for (const article of newArticles) {
+            try {
+                // Lookup Category ID
+                const catId = categoryMap.get(article.categoryName);
+                if (!catId) {
+                    console.error(`✗ Skipping "${article.title}": Category "${article.categoryName}" not found.`);
+                    continue;
+                }
+
+                // Update article with correct ID
+                const articleToSend = { ...article, categoryId: catId };
+
+                const response = await fetch(`${API_URL}/articles`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(articleToSend),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(`✓ Added: ${article.title}`);
+                } else {
+                    const error = await response.text();
+                    console.error(`✗ Failed to add "${article.title}": ${error}`);
+                }
+            } catch (error) {
+                console.error(`✗ Error adding "${article.title}":`, error);
+            }
+        }
+
+        console.log('\n✓ Finished adding articles!');
+        console.log(`Total articles processed: ${newArticles.length}`);
+
+    } catch (error) {
+        console.error('Fatal error:', error);
+    }
 }
 
 addArticles();
