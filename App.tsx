@@ -55,6 +55,7 @@ const App: React.FC = () => {
             <Route path="/authors" element={<AuthorDirectory />} />
           </Routes>
         </Layout>
+        <Analytics />
       </BrowserRouter>
     </HelmetProvider>
   );
