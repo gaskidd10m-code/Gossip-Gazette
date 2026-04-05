@@ -1,15 +1,13 @@
 import { Pool } from '@neondatabase/serverless';
 
-const pool = new Pool({ connectionString: process.env.NEON_DATABASE_URL });
-
 export const db = {
   async query<T = any>(text: string, params?: any[]): Promise<T[]> {
-    const client = await pool.connect();
+    const pool = new Pool({ connectionString: process.env.NEON_DATABASE_URL });
     try {
-      const { rows } = await client.query(text, params);
-      return rows;
+      const { rows } = await pool.query(text, params);
+      return rows as T[];
     } finally {
-      client.release();
+      await pool.end();
     }
   }
 };
