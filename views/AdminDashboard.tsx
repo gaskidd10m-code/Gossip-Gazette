@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '../services/api';
 import { Article, ArticleFormData, Category, Comment } from '../types';
-import Quill from 'quill';
+import type Quill from 'quill';
 
 // Simple Modal Component
 const Modal = ({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => void; children?: React.ReactNode }) => {
@@ -72,33 +72,36 @@ export const AdminDashboard = () => {
     }
   }, [editId, articles]);
 
-  // Init Quill when modal opens
+// Init Quill when modal opens
   useEffect(() => {
     if (isEditing && quillRef.current && !editorInstanceRef.current) {
-      editorInstanceRef.current = new Quill(quillRef.current, {
-        theme: 'snow',
-        placeholder: 'Write your story here...',
-        modules: {
-          toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['link', 'image'],
-            ['clean']
-          ]
-        }
-      });
+      import('quill').then((QuillModule) => {
+        const Quill = QuillModule.default;
+        editorInstanceRef.current = new Quill(quillRef.current!, {
+          theme: 'snow',
+          placeholder: 'Write your story here...',
+          modules: {
+            toolbar: [
+              [{ 'header': [1, 2, 3, false] }],
+              ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              ['link', 'image'],
+              ['clean']
+            ]
+          }
+        });
 
-      // Handle Content Change
-      editorInstanceRef.current.on('text-change', () => {
-        if (editorInstanceRef.current) {
-          const html = editorInstanceRef.current.root.innerHTML;
-          setCurrentArticle(prev => ({ ...prev, content: html }));
-        }
+        // Handle Content Change
+        editorInstanceRef.current.on('text-change', () => {
+          if (editorInstanceRef.current) {
+            const html = editorInstanceRef.current.root.innerHTML;
+            setCurrentArticle(prev => ({ ...prev, content: html }));
+          }
+        });
+      }).catch(err => {
+        console.error("Failed to load Quill editor", err);
       });
-    }
-
-    // Load initial content if editing
+    }    // Load initial content if editing
     if (isEditing && editorInstanceRef.current && currentArticle.content) {
       // Check if empty or significantly different
       if (editorInstanceRef.current.root.innerHTML !== currentArticle.content) {
