@@ -11,7 +11,6 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
     const [articles, setArticles] = useState<Article[]>(initialArticles);
     const [category, setCategory] = useState<Category | null>(initialCategory);
     const [loading, setLoading] = useState(initialArticles.length === 0 && !initialCategory);
-    const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
 
     useEffect(() => {
         // If we already have data from server, skip first load
@@ -45,10 +44,6 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
         }
     }, [slug, initialArticles, initialCategory]);
 
-    const handleToggleArticle = (articleId: string) => {
-        setExpandedArticleId(prev => prev === articleId ? null : articleId);
-    };
-
     if (loading) {
         return <div className="container mx-auto py-20 text-center font-serif">Loading...</div>;
     }
@@ -75,8 +70,6 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
                         <ArticleCard
                             key={a.id}
                             article={a}
-                            isExpanded={expandedArticleId === a.id}
-                            onToggle={() => handleToggleArticle(a.id)}
                             variant="list"
                         />
                     ))}

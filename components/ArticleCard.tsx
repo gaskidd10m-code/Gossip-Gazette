@@ -5,8 +5,6 @@ import { Article } from '../types';
 
 interface ArticleCardProps {
     article: Article;
-    isExpanded: boolean;
-    onToggle: () => void;
     variant?: 'hero' | 'card' | 'list' | 'mobile';
     searchQuery?: string;
 }
@@ -32,27 +30,12 @@ const Highlight = ({ text, highlight }: { text: string; highlight: string }) => 
     );
 };
 
-export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isExpanded, onToggle, variant = 'list', searchQuery = '' }) => {
+export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'list', searchQuery = '' }) => {
     const contentRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (isExpanded && contentRef.current) {
-            // Optional: scroll to view if needed, but maybe annoying if it jumps too much.
-            // contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, [isExpanded]);
+    // Removed expansion effect logic as we now navigate to separate pages
 
     const renderContent = () => {
-        if (isExpanded) {
-            // Fix for "code showing": render HTML content safely
-            return (
-                <div
-                    className="[&_p]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:mt-4"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
-                />
-            );
-        }
-        // Excerpt is usually plain text, but we apply highlighting if needed
         return <Highlight text={article.excerpt} highlight={searchQuery} />;
     };
 
@@ -139,12 +122,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, isExpanded, o
                         <img src={article.coverImage} className="w-full h-full object-cover rounded-sm bg-gray-100" loading="lazy" alt={article.title} />
                     </Link>
                 </div>
-                {isExpanded && (
-                    <div
-                        className="text-sm text-gray-700 leading-relaxed whitespace-pre-line mt-2"
-                        dangerouslySetInnerHTML={{ __html: article.content }}
-                    />
-                )}
+                {/* Removed in-place content injection */}
                 <Link
                     href={`/article/${article.slug}`}
                     className="text-xs text-red-700 font-bold uppercase text-left hover:underline transition-all"

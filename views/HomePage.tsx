@@ -1,13 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Article } from '../types';
 import { api } from '../services/api';
 import { ArticleCard } from '../components/ArticleCard';
 
 // --- Sub-components for Layouts ---
 
-const BentoGrid = ({ articles, expandedId, onToggle }: { articles: Article[]; expandedId: string | null; onToggle: (id: string) => void }) => {
+const BentoGrid = ({ articles }: { articles: Article[] }) => {
   if (articles.length < 3) return null;
   const [main, sub1, sub2] = articles;
 
@@ -17,8 +18,6 @@ const BentoGrid = ({ articles, expandedId, onToggle }: { articles: Article[]; ex
       <div className="md:col-span-8">
         <ArticleCard
           article={main}
-          isExpanded={expandedId === main.id}
-          onToggle={() => onToggle(main.id)}
           variant="hero"
         />
       </div>
@@ -27,15 +26,11 @@ const BentoGrid = ({ articles, expandedId, onToggle }: { articles: Article[]; ex
       <div className="md:col-span-4 flex flex-col gap-8 border-t md:border-t-0 md:border-l border-gray-100 pt-8 md:pt-0 md:pl-8">
         <ArticleCard
           article={sub1}
-          isExpanded={expandedId === sub1.id}
-          onToggle={() => onToggle(sub1.id)}
           variant="card"
         />
         <div className="w-full h-px bg-gray-100"></div>
         <ArticleCard
           article={sub2}
-          isExpanded={expandedId === sub2.id}
-          onToggle={() => onToggle(sub2.id)}
           variant="card"
         />
       </div>
@@ -43,7 +38,7 @@ const BentoGrid = ({ articles, expandedId, onToggle }: { articles: Article[]; ex
   );
 };
 
-const SectionTech = ({ articles, expandedId, onToggle }: { articles: Article[]; expandedId: string | null; onToggle: (id: string) => void }) => (
+const SectionTech = ({ articles }: { articles: Article[] }) => (
   <section className="mb-16">
     <div className="flex items-end justify-between border-b-2 border-black mb-8 pb-2">
       <h3 className="font-sans font-black text-2xl uppercase tracking-widest">Technology</h3>
@@ -53,8 +48,6 @@ const SectionTech = ({ articles, expandedId, onToggle }: { articles: Article[]; 
         <ArticleCard
           key={article.id}
           article={article}
-          isExpanded={expandedId === article.id}
-          onToggle={() => onToggle(article.id)}
           variant="list"
         />
       ))}
@@ -62,7 +55,7 @@ const SectionTech = ({ articles, expandedId, onToggle }: { articles: Article[]; 
   </section>
 );
 
-const SectionSports = ({ articles, expandedId, onToggle }: { articles: Article[]; expandedId: string | null; onToggle: (id: string) => void }) => (
+const SectionSports = ({ articles }: { articles: Article[] }) => (
   <section className="mb-16 bg-brand-black text-white -mx-4 md:-mx-6 px-4 md:px-6 py-12 rounded-sm shadow-inner">
     <div className="container mx-auto">
       <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
@@ -78,18 +71,12 @@ const SectionSports = ({ articles, expandedId, onToggle }: { articles: Article[]
             </div>
             <h4 className="font-bold text-lg leading-tight mb-2">{article.title}</h4>
             <p className="text-xs text-gray-500 mb-3">{new Date(article.publishedAt).toLocaleDateString()}</p>
-            {expandedId === article.id && (
-              <div
-                className="text-sm text-gray-300 leading-relaxed mb-3 whitespace-pre-line"
-                dangerouslySetInnerHTML={{ __html: article.content }}
-              />
-            )}
-            <button
-              onClick={() => onToggle(article.id)}
+            <Link
+              href={`/article/${article.slug}`}
               className="text-xs text-white font-bold uppercase hover:text-red-400 transition-colors"
             >
-              {expandedId === article.id ? '↑ Read Less' : 'Read More →'}
-            </button>
+              Read More →
+            </Link>
           </div>
         ))}
       </div>
@@ -136,7 +123,7 @@ const Sidebar = () => (
 
 // --- Mobile-Specific Components ---
 
-const MobileNewsFeed = ({ articles, expandedId, onToggle }: { articles: Article[]; expandedId: string | null; onToggle: (id: string) => void }) => {
+const MobileNewsFeed = ({ articles }: { articles: Article[] }) => {
   if (articles.length === 0) return null;
   const [main, ...rest] = articles.slice(0, 6); // Top 6 stories
 
@@ -146,8 +133,6 @@ const MobileNewsFeed = ({ articles, expandedId, onToggle }: { articles: Article[
       <div className="border-b border-gray-200 pb-6">
         <ArticleCard
           article={main}
-          isExpanded={expandedId === main.id}
-          onToggle={() => onToggle(main.id)}
           variant="hero"
         />
       </div>
@@ -163,8 +148,6 @@ const MobileNewsFeed = ({ articles, expandedId, onToggle }: { articles: Article[
             <ArticleCard
               key={article.id}
               article={article}
-              isExpanded={expandedId === article.id}
-              onToggle={() => onToggle(article.id)}
               variant="mobile"
             />
           ))}
@@ -176,7 +159,6 @@ const MobileNewsFeed = ({ articles, expandedId, onToggle }: { articles: Article[
 
 export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[] }) => {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
-  const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const categoryFilter = searchParams.get('cat');
 
@@ -209,11 +191,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
     if (articles.length === 0) {
       loadData();
     }
-  }, []);
-
-  const handleToggleArticle = (articleId: string) => {
-    setExpandedArticleId(prev => prev === articleId ? null : articleId);
-  };
+  }, [articles.length]);
 
   const sportsArticles = articles.filter(a => a.categoryName === 'Sports');
   const techArticles = articles.filter(a => a.categoryName === 'Technology');
@@ -231,16 +209,16 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
 
       {/* Desktop Hero */}
       <div className="hidden md:block">
-        <BentoGrid articles={articles.slice(0, 4)} expandedId={expandedArticleId} onToggle={handleToggleArticle} />
+        <BentoGrid articles={articles.slice(0, 4)} />
       </div>
 
       {/* Mobile News Feed (Replaces Hero on Mobile) */}
-      <MobileNewsFeed articles={articles} expandedId={expandedArticleId} onToggle={handleToggleArticle} />
+      <MobileNewsFeed articles={articles} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Main Content Column */}
         <div className="lg:col-span-8">
-          <SectionTech articles={techArticles.length ? techArticles : articles.slice(2, 5)} expandedId={expandedArticleId} onToggle={handleToggleArticle} />
+          <SectionTech articles={techArticles.length ? techArticles : articles.slice(2, 5)} />
 
           <div className="border-t border-gray-200 my-12"></div>
 
@@ -253,8 +231,6 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
               <ArticleCard
                 key={article.id}
                 article={article}
-                isExpanded={expandedArticleId === article.id}
-                onToggle={() => handleToggleArticle(article.id)}
                 variant="list"
               />
             ))}
@@ -269,7 +245,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
 
       {/* Horizontal Scroll Section */}
       <div className="mt-20">
-        <SectionSports articles={sportsArticles.length ? sportsArticles : articles} expandedId={expandedArticleId} onToggle={handleToggleArticle} />
+        <SectionSports articles={sportsArticles.length ? sportsArticles : articles} />
       </div>
     </div>
   );

@@ -11,12 +11,6 @@ export const AuthorPage = ({ initialArticles = [], initialAuthor = null }: { ini
     const [articles, setArticles] = useState<Article[]>(initialArticles);
     const [author, setAuthor] = useState<Author | null>(initialAuthor);
     const [loading, setLoading] = useState(initialArticles.length === 0 && !initialAuthor);
-    const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
-
-    const handleToggleArticle = (articleId: string) => {
-        setExpandedArticleId(prev => prev === articleId ? null : articleId);
-    };
-
 
     useEffect(() => {
         // If we already have data from server, skip first load
@@ -153,8 +147,6 @@ export const AuthorPage = ({ initialArticles = [], initialAuthor = null }: { ini
                             <ArticleCard
                                 key={article.id}
                                 article={article}
-                                isExpanded={expandedArticleId === article.id}
-                                onToggle={() => handleToggleArticle(article.id)}
                                 variant="list"
                             />
                         ))}
