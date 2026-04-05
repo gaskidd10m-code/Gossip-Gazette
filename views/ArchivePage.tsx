@@ -14,12 +14,6 @@ export const ArchivePage: React.FC = () => {
     const [archiveDates, setArchiveDates] = useState<{ year: number, month: number, count: number }[]>([]);
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
-    const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
-
-    const handleToggleArticle = (articleId: string) => {
-        setExpandedArticleId(prev => prev === articleId ? null : articleId);
-    };
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -113,8 +107,6 @@ export const ArchivePage: React.FC = () => {
                                 <ArticleCard
                                     key={article.id}
                                     article={article}
-                                    isExpanded={expandedArticleId === article.id}
-                                    onToggle={() => handleToggleArticle(article.id)}
                                     variant="list"
                                 />
                             ))}

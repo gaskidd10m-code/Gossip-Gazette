@@ -11,7 +11,6 @@ export const SearchPage = () => {
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
-  const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
 
   useEffect(() => {
     const doSearch = async () => {
@@ -26,10 +25,6 @@ export const SearchPage = () => {
     };
     doSearch();
   }, [query]);
-
-  const handleToggleArticle = (articleId: string) => {
-    setExpandedArticleId(prev => prev === articleId ? null : articleId);
-  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -50,8 +45,6 @@ export const SearchPage = () => {
             <ArticleCard
               key={article.id}
               article={article}
-              isExpanded={expandedArticleId === article.id}
-              onToggle={() => handleToggleArticle(article.id)}
               variant="list"
               searchQuery={query}
             />
