@@ -1,7 +1,7 @@
+import { Suspense } from 'react';
 import { HomePage } from '../views/HomePage';
 import { db } from '../lib/db';
 import { Article } from '../types';
-
 async function getInitialArticles(): Promise<Article[]> {
   try {
     const rows = await db.query(
@@ -23,5 +23,10 @@ async function getInitialArticles(): Promise<Article[]> {
 
 export default async function Page() {
   const initialArticles = await getInitialArticles();
-  return <HomePage initialArticles={initialArticles} />;
+  
+  return (
+    <Suspense fallback={<div className="container mx-auto py-20 text-center font-serif text-gray-500">Loading home...</div>}>
+      <HomePage initialArticles={initialArticles} />
+    </Suspense>
+  );
 }
