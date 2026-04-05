@@ -1,0 +1,166 @@
+'use client';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { api } from '../services/api';
+import { Author, Article } from '../types';
+import { ArticleCard } from '../components/ArticleCard';
+
+export const AuthorPage = ({ initialArticles = [], initialAuthor = null }: { initialArticles?: Article[]; initialAuthor?: Author | null }) => {
+    const { slug } = useParams<{ slug: string }>();
+    const [articles, setArticles] = useState<Article[]>(initialArticles);
+    const [author, setAuthor] = useState<Author | null>(initialAuthor);
+    const [loading, setLoading] = useState(initialArticles.length === 0 && !initialAuthor);
+    const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
+
+    const handleToggleArticle = (articleId: string) => {
+        setExpandedArticleId(prev => prev === articleId ? null : articleId);
+    };
+
+
+    useEffect(() => {
+        // If we already have data from server, skip first load
+        if (initialArticles.length > 0 && initialAuthor?.slug === slug) {
+            setLoading(false);
+            return;
+        }
+
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const foundAuthor = await api.getAuthor(slug!);
+                setAuthor(foundAuthor);
+                const authorArticles = await api.getAuthorArticles(slug!);
+                setArticles(authorArticles);
+            } catch (error) {
+                console.error('Failed to load author data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (slug) {
+            fetchData();
+        }
+    }, [slug, initialArticles, initialAuthor]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="text-gray-500">Loading author profile...</div>
+            </div>
+        );
+    }
+
+    if (!author) {
+        return (
+            <div className="max-w-4xl mx-auto px-4 py-8">
+                <h1 className="text-3xl font-bold mb-4">Author Not Found</h1>
+                <p className="text-gray-600">The author you're looking for doesn't exist.</p>
+                <Link href="/" className="text-blue-500 hover:underline mt-4 inline-block">Return to Home</Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-5xl mx-auto px-4 py-8">
+            {/* Author Header */}
+            <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                    {/* Author Photo */}
+                    <div className="flex-shrink-0">
+                        <img
+                            src={author.photoUrl || '/placeholder-author.jpg'}
+                            alt={author.name}
+                            className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+                        />
+                    </div>
+
+                    {/* Author Info */}
+                    <div className="flex-grow">
+                        <h1 className="text-4xl font-bold mb-2">{author.name}</h1>
+
+                        {/* Expertise Tags */}
+                        {author.expertise && author.expertise.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {author.expertise.map((exp, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full"
+                                    >
+                                        {exp}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Bio */}
+                        <p className="text-gray-700 leading-relaxed mb-4 whitespace-pre-line">
+                            {author.bio || 'No bio available.'}
+                        </p>
+
+                        {/* Social Links */}
+                        <div className="flex gap-4 items-center">
+                            {author.email && (
+                                <a
+                                    href={`mailto:${author.email}`}
+                                    className="text-gray-600 hover:text-red-700 transition-colors"
+                                    title="Email"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </a>
+                            )}
+                            {author.twitterUrl && (
+                                <a
+                                    href={author.twitterUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-red-700 transition-colors text-sm font-semibold"
+                                    title="Twitter/X"
+                                >
+                                    Twitter
+                                </a>
+                            )}
+                            {author.linkedinUrl && (
+                                <a
+                                    href={author.linkedinUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-gray-600 hover:text-red-700 transition-colors text-sm font-semibold"
+                                    title="LinkedIn"
+                                >
+                                    LinkedIn
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Articles Section */}
+            <div>
+                <h2 className="text-2xl font-bold mb-6">
+                    Articles by {author.name} ({articles.length})
+                </h2>
+
+                {articles.length === 0 ? (
+                    <p className="text-gray-600">No articles published yet.</p>
+                ) : (
+                    <div className="grid gap-6">
+                        {articles.map((article) => (
+                            <ArticleCard
+                                key={article.id}
+                                article={article}
+                                isExpanded={expandedArticleId === article.id}
+                                onToggle={() => handleToggleArticle(article.id)}
+                                variant="list"
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};

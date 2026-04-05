@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { Category } from '../types';
 import { api } from '../services/api';
 
@@ -11,35 +14,38 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [tickerText, setTickerText] = useState('🔴 LIVE: Global markets rally as tech sector booms • Historic climate treaty signed in Geneva • Local cat stuck in tree actually fine, just wanted a view •');
-  const navigate = useNavigate();
+  const [tickerText, setTickerText] = useState(
+    '🔴 LIVE: Global markets rally as tech sector booms • Historic climate treaty signed in Geneva • Local cat stuck in tree actually fine, just wanted a view •'
+  );
+  const router = useRouter();
+  const pathname = usePathname();
 
-  React.useEffect(() => {
-    // Fetch dynamic ticker
-    api.getSetting('ticker_text').then(text => {
+  useEffect(() => {
+    api.getSetting('ticker_text').then((text) => {
       if (text) setTickerText(text);
     });
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
       setSearchTerm('');
     }
   };
 
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
-  const isAuthenticated = api.checkAuth();
+  const isAuthenticated = typeof window !== 'undefined' ? api.checkAuth() : false;
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-gray-900 bg-white">
 
       {/* 1. Breaking News Ticker */}
-      <div className="bg-brand-black text-white text-[10px] md:text-xs font-bold py-2 overflow-hidden relative whitespace-nowrap z-50 tracking-widest uppercase">
+      <div className="bg-[#111111] text-white text-[10px] md:text-xs font-bold py-2 overflow-hidden relative whitespace-nowrap z-50 tracking-widest uppercase">
         <div className="animate-ticker inline-block">
           {tickerText}
         </div>
@@ -58,17 +64,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="order-2 md:order-none" onClick={closeMenu}>
+          <Link href="/" className="order-2 md:order-none">
             <img src="/logo.png" alt="Gossip Gazette" className="h-16 md:h-20 w-auto object-contain" />
           </Link>
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center gap-8 mx-8">
             <ul className="flex flex-row font-sans font-bold text-xs tracking-[0.2em] uppercase gap-8">
-              <li><Link to="/" className="hover:text-red-700 transition-colors">Home</Link></li>
-              {categories.map(cat => (
+              <li><Link href="/" className="hover:text-red-700 transition-colors">Home</Link></li>
+              {categories.map((cat) => (
                 <li key={cat.id}>
-                  <Link to={`/category/${cat.slug}`} className="hover:text-red-700 transition-colors">{cat.name}</Link>
+                  <Link href={`/category/${cat.slug}`} className="hover:text-red-700 transition-colors">{cat.name}</Link>
                 </li>
               ))}
             </ul>
@@ -82,7 +88,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-3 pr-8 py-1.5 border-b border-gray-300 focus:border-black outline-none text-sm transition-colors bg-transparent w-32 focus:w-48 transition-all duration-300"
+                className="pl-3 pr-8 py-1.5 border-b border-gray-300 focus:border-black outline-none text-sm transition-colors bg-transparent w-32 focus:w-48 duration-300"
               />
               <button type="submit" className="absolute right-0 top-1.5 text-gray-400 group-hover:text-black transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -98,10 +104,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
         <nav className={`md:hidden border-t border-gray-100 ${isMenuOpen ? 'block' : 'hidden'} bg-white`}>
           <div className="container mx-auto px-6 py-4">
             <ul className="flex flex-col gap-4 font-sans font-bold text-xs tracking-[0.2em] uppercase">
-              <li><Link to="/" onClick={closeMenu} className="hover:text-red-700 block transition-colors">Home</Link></li>
-              {categories.map(cat => (
+              <li><Link href="/" className="hover:text-red-700 block transition-colors">Home</Link></li>
+              {categories.map((cat) => (
                 <li key={cat.id}>
-                  <Link to={`/category/${cat.slug}`} onClick={closeMenu} className="hover:text-red-700 block transition-colors">{cat.name}</Link>
+                  <Link href={`/category/${cat.slug}`} className="hover:text-red-700 block transition-colors">{cat.name}</Link>
                 </li>
               ))}
             </ul>
@@ -115,7 +121,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
       </main>
 
       {/* 4. Footer */}
-      <footer className="bg-brand-black text-white pt-16 pb-8">
+      <footer className="bg-[#111111] text-white pt-16 pb-8">
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="space-y-4">
@@ -132,9 +138,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           <div>
             <h4 className="font-bold uppercase tracking-widest mb-6 text-xs text-gray-500">Sections</h4>
             <ul className="text-sm text-gray-300 space-y-3">
-              {categories.slice(0, 4).map(c => (
+              {categories.slice(0, 4).map((c) => (
                 <li key={c.id}>
-                  <Link to={`/category/${c.slug}`} className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">
+                  <Link href={`/category/${c.slug}`} className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">
                     {c.name}
                   </Link>
                 </li>
@@ -146,11 +152,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           <div>
             <h4 className="font-bold uppercase tracking-widest mb-6 text-xs text-gray-500">Company</h4>
             <ul className="text-sm text-gray-300 space-y-3">
-              <li><Link to="/about" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">About</Link></li>
-              <li><Link to="/contact" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Contact</Link></li>
-              <li><Link to="/careers" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Careers</Link></li>
-              <li><Link to="/advertise" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Advertise</Link></li>
-              <li><Link to="/faq" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">FAQ</Link></li>
+              <li><Link href="/about" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">About</Link></li>
+              <li><Link href="/contact" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Contact</Link></li>
+              <li><Link href="/careers" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Careers</Link></li>
+              <li><Link href="/advertise" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">Advertise</Link></li>
+              <li><Link href="/faq" className="hover:text-white hover:underline decoration-red-700 underline-offset-4 transition-all">FAQ</Link></li>
             </ul>
           </div>
 
@@ -168,14 +174,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
         {/* Bottom Bar */}
         <div className="container mx-auto px-6 border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
           <p>© 2026 Gossip Gazette Media. All rights reserved.
-            <Link to={isAuthenticated ? "/admin" : "/login"} className="ml-2 hover:opacity-100 opacity-50 grayscale hover:grayscale-0 transition-all text-base no-underline" title="Staff Login">🔐</Link>
+            <Link href={isAuthenticated ? "/admin" : "/login"} className="ml-2 hover:opacity-100 opacity-50 grayscale hover:grayscale-0 transition-all text-base no-underline" title="Staff Login">🔐</Link>
           </p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <Link to="/privacy-policy" className="hover:text-gray-400">Privacy Policy</Link>
-            <Link to="/terms-of-service" className="hover:text-gray-400">Terms of Service</Link>
-            <Link to="/editorial-guidelines" className="hover:text-gray-400">Editorial Guidelines</Link>
-            <Link to="/community-guidelines" className="hover:text-gray-400">Community Guidelines</Link>
-            <Link to="#" className="hover:text-gray-400">Cookie Settings</Link>
+            <Link href="/privacy-policy" className="hover:text-gray-400">Privacy Policy</Link>
+            <Link href="/terms-of-service" className="hover:text-gray-400">Terms of Service</Link>
+            <Link href="/editorial-guidelines" className="hover:text-gray-400">Editorial Guidelines</Link>
+            <Link href="/community-guidelines" className="hover:text-gray-400">Community Guidelines</Link>
+            <Link href="#" className="hover:text-gray-400">Cookie Settings</Link>
           </div>
         </div>
       </footer>

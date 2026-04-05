@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
+
+
 import { Analytics } from '@vercel/analytics/react';
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/HomePage';
@@ -34,7 +34,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <HelmetProvider>
+    
       <Analytics />
       <BrowserRouter>
         <Layout categories={categories}>
@@ -56,7 +56,7 @@ const App: React.FC = () => {
           </Routes>
         </Layout>
       </BrowserRouter>
-    </HelmetProvider>
+    
   );
 };
 
