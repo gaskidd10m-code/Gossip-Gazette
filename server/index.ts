@@ -7,19 +7,24 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// --- ARTICLES ---
+// ── ARTICLES ──────────────────────────────────────────────────
 app.get('/api/articles', async (req, res) => {
     try {
         if (req.query.category) {
-            const articles = await neonService.getArticlesByCategory(req.query.category as string);
-            return res.json(articles);
+            return res.json(await neonService.getArticlesByCategory(req.query.category as string));
         }
         if (req.query.q) {
-            const articles = await neonService.searchArticles(req.query.q as string);
-            return res.json(articles);
+            return res.json(await neonService.searchArticles(req.query.q as string));
         }
-        const articles = await neonService.getArticles();
-        res.json(articles);
+        if (req.query.tag) {
+            return res.json(await neonService.getArticlesByTag(req.query.tag as string));
+        }
+        if (req.query.year) {
+            const year = parseInt(req.query.year as string);
+            const month = req.query.month ? parseInt(req.query.month as string) : undefined;
+            return res.json(await neonService.getArticlesByDate(year, month));
+        }
+        res.json(await neonService.getArticles());
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to fetch articles' });
@@ -39,8 +44,7 @@ app.get('/api/articles/:slug', async (req, res) => {
 
 app.post('/api/articles', async (req, res) => {
     try {
-        const article = await neonService.createArticle(req.body);
-        res.json(article);
+        res.json(await neonService.createArticle(req.body));
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to create article' });
@@ -67,11 +71,10 @@ app.delete('/api/articles/:id', async (req, res) => {
     }
 });
 
-// --- CATEGORIES ---
-app.get('/api/categories', async (req, res) => {
+// ── CATEGORIES ────────────────────────────────────────────────
+app.get('/api/categories', async (_req, res) => {
     try {
-        const categories = await neonService.getCategories();
-        res.json(categories);
+        res.json(await neonService.getCategories());
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to fetch categories' });
@@ -80,7 +83,6 @@ app.get('/api/categories', async (req, res) => {
 
 app.post('/api/categories', async (req, res) => {
     try {
-        // Expecting { name: string }
         const category = await neonService.createCategory(req.body.name);
         res.json(category);
     } catch (err) {
@@ -99,16 +101,13 @@ app.delete('/api/categories/:id', async (req, res) => {
     }
 });
 
-// --- COMMENTS ---
+// ── COMMENTS ─────────────────────────────────────────────────
 app.get('/api/comments', async (req, res) => {
     try {
         if (req.query.articleId) {
-            const comments = await neonService.getComments(req.query.articleId as string);
-            res.json(comments);
-        } else {
-            const comments = await neonService.getAllComments();
-            res.json(comments);
+            return res.json(await neonService.getComments(req.query.articleId as string));
         }
+        res.json(await neonService.getAllComments());
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to fetch comments' });
@@ -117,8 +116,7 @@ app.get('/api/comments', async (req, res) => {
 
 app.post('/api/comments', async (req, res) => {
     try {
-        const comment = await neonService.addComment(req.body);
-        res.json(comment);
+        res.json(await neonService.addComment(req.body));
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to add comment' });
@@ -145,7 +143,7 @@ app.delete('/api/comments/:id', async (req, res) => {
     }
 });
 
-// --- SETTINGS ---
+// ── SETTINGS ──────────────────────────────────────────────────
 app.get('/api/settings/:key', async (req, res) => {
     try {
         const value = await neonService.getSetting(req.params.key);
@@ -166,7 +164,106 @@ app.put('/api/settings/:key', async (req, res) => {
     }
 });
 
+// ── AUTHORS ───────────────────────────────────────────────────
+app.get('/api/authors', async (_req, res) => {
+    try {
+        res.json(await neonService.getAuthors());
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch authors' });
+    }
+});
+
+app.get('/api/authors/:slug/articles', async (req, res) => {
+    try {
+        res.json(await neonService.getArticlesByAuthor(req.params.slug));
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch author articles' });
+    }
+});
+
+app.get('/api/authors/:slug', async (req, res) => {
+    try {
+        const author = await neonService.getAuthorBySlug(req.params.slug);
+        if (!author) return res.status(404).json({ error: 'Author not found' });
+        res.json(author);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch author' });
+    }
+});
+
+// ── TAGS ──────────────────────────────────────────────────────
+app.get('/api/tags', async (_req, res) => {
+    try {
+        res.json(await neonService.getTags());
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch tags' });
+    }
+});
+
+// ── ARCHIVE ───────────────────────────────────────────────────
+app.get('/api/archive/dates', async (_req, res) => {
+    try {
+        res.json(await neonService.getArchiveDates());
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch archive dates' });
+    }
+});
+
+// ── TRANSFER NEWS ─────────────────────────────────────────────
+app.get('/api/transfer-news', async (_req, res) => {
+    try {
+        res.json(await neonService.getTransferNews());
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch transfer news' });
+    }
+});
+
+app.get('/api/transfer-news/published', async (_req, res) => {
+    try {
+        res.json(await neonService.getPublishedTransferNews());
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch published transfer news' });
+    }
+});
+
+app.post('/api/transfer-news', async (req, res) => {
+    try {
+        res.json(await neonService.createTransferNews(req.body));
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create transfer news' });
+    }
+});
+
+app.put('/api/transfer-news/:id', async (req, res) => {
+    try {
+        await neonService.updateTransferNews(req.params.id, req.body);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update transfer news' });
+    }
+});
+
+app.delete('/api/transfer-news/:id', async (req, res) => {
+    try {
+        await neonService.deleteTransferNews(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete transfer news' });
+    }
+});
+
+// ── START ─────────────────────────────────────────────────────
 const PORT = 3001;
 app.listen(PORT, () => {
-    console.log(`API Server running on http://localhost:${PORT}`);
+    console.log(`✅ API Server running on http://localhost:${PORT}`);
 });
