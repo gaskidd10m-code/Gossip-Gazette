@@ -64,3 +64,13 @@ export interface Comment {
 // --- APP STATE TYPES ---
 
 export type ArticleFormData = Omit<Article, 'id' | 'views' | 'authorId' | 'authorName'>;
+
+export interface TransferNews {
+  id: string;
+  title: string;
+  content: string;
+  status: 'draft' | 'published';
+  createdAt: string;
+}
+
+export type TransferNewsFormData = Omit<TransferNews, 'id' | 'createdAt'>;

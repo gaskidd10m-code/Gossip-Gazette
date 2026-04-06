@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '../services/api';
-import { Article, ArticleFormData, Category, Comment } from '../types';
+import { Article, ArticleFormData, Category, Comment, TransferNews, TransferNewsFormData } from '../types';
 import type Quill from 'quill';
 
 // Simple Modal Component
@@ -25,7 +25,7 @@ export const AdminDashboard = () => {
   const searchParams = useSearchParams();
   const editId = searchParams.get('editId');
 
-  const [activeTab, setActiveTab] = useState<'articles' | 'categories' | 'comments' | 'settings'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'categories' | 'comments' | 'settings' | 'transfer'>('articles');
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -43,6 +43,13 @@ export const AdminDashboard = () => {
   // Settings State
   const [tickerText, setTickerText] = useState('');
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  // Transfer News State
+  const [transferNews, setTransferNews] = useState<TransferNews[]>([]);
+  const [isEditingTransfer, setIsEditingTransfer] = useState(false);
+  const [currentTransfer, setCurrentTransfer] = useState<TransferNewsFormData & { id?: string }>({
+    title: '', content: '', status: 'draft'
+  });
 
   // Image Upload State
   const [useImageUpload, setUseImageUpload] = useState(false);
@@ -117,11 +124,14 @@ export const AdminDashboard = () => {
   }, [isEditing]);
 
   const loadData = async () => {
-    const [arts, cats, comms, ticker] = await Promise.all([api.getArticles(), api.getCategories(), api.getAllComments(), api.getSetting('ticker_text')]);
+    const [arts, cats, comms, ticker, transfers] = await Promise.all([
+      api.getArticles(), api.getCategories(), api.getAllComments(), api.getSetting('ticker_text'), api.getTransferNews()
+    ]);
     setArticles(arts);
     setCategories(cats);
     setComments(comms);
     setTickerText(ticker);
+    setTransferNews(transfers);
   };
 
   const handleSaveSettings = async (e: React.FormEvent) => {
@@ -275,6 +285,34 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteTransfer = async (id: string) => {
+    if (window.confirm('Delete this transfer news item?')) {
+      await api.deleteTransferNews(id);
+      loadData();
+    }
+  };
+
+  const handleEditTransfer = (item: TransferNews) => {
+    setCurrentTransfer(item);
+    setIsEditingTransfer(true);
+  };
+
+  const handleCreateTransfer = () => {
+    setCurrentTransfer({ title: '', content: '', status: 'draft' });
+    setIsEditingTransfer(true);
+  };
+
+  const handleSubmitTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (currentTransfer.id) {
+      await api.updateTransferNews(currentTransfer.id, currentTransfer);
+    } else {
+      await api.createTransferNews(currentTransfer);
+    }
+    setIsEditingTransfer(false);
+    loadData();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex justify-between items-center mb-8 border-b border-gray-200 pb-6">
@@ -286,9 +324,15 @@ export const AdminDashboard = () => {
           <button onClick={handleLogout} className="text-gray-500 font-bold text-sm hover:text-red-600 transition-colors">
             Sign Out
           </button>
-          <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
-            + Create Article
-          </button>
+          {activeTab === 'transfer' ? (
+            <button onClick={handleCreateTransfer} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
+              + Transfer News
+            </button>
+          ) : (
+            <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
+              + Create Article
+            </button>
+          )}
         </div>
       </div>
 
@@ -317,6 +361,12 @@ export const AdminDashboard = () => {
           className={`pb-4 text-sm font-bold uppercase tracking-widest ${activeTab === 'settings' ? 'border-b-2 border-black text-black' : 'text-gray-400 hover:text-black'}`}
         >
           Settings
+        </button>
+        <button
+          onClick={() => setActiveTab('transfer')}
+          className={`pb-4 text-sm font-bold uppercase tracking-widest ${activeTab === 'transfer' ? 'border-b-2 border-red-600 text-red-600' : 'text-gray-400 hover:text-black'}`}
+        >
+          ⚡ Transfer News
         </button>
       </div>
 
@@ -687,6 +737,115 @@ export const AdminDashboard = () => {
             <button type="button" onClick={() => setIsEditing(false)} className="px-6 py-3 font-bold uppercase text-xs text-gray-500 hover:text-black transition-colors">Cancel</button>
             <button type="submit" className="bg-black text-white px-8 py-3 font-bold uppercase text-xs hover:bg-red-700 transition-colors shadow-lg">
               {currentArticle.id ? 'Update Article' : 'Publish Article'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Transfer News Tab Content */}
+      {activeTab === 'transfer' && (
+        <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-gray-500 uppercase font-bold text-xs tracking-wider border-b border-gray-200">
+                <tr>
+                  <th className="p-5">Title</th>
+                  <th className="p-5">Status</th>
+                  <th className="p-5">Date</th>
+                  <th className="p-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {transferNews.map(item => (
+                  <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="p-5">
+                      <p className="font-bold text-gray-900">{item.title}</p>
+                      <p className="text-gray-400 text-xs mt-1 truncate max-w-sm">{item.content.replace(/<[^>]*>/g, '').substring(0, 100)}</p>
+                    </td>
+                    <td className="p-5">
+                      <span className={`px-3 py-1 text-xs font-bold uppercase rounded-full ${item.status === 'published' ? 'text-green-700 bg-green-100' : 'text-yellow-700 bg-yellow-100'}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="p-5 text-gray-500 text-xs">
+                      {new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td className="p-5 text-right">
+                      <div className="flex justify-end gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleEditTransfer(item)}
+                          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold text-xs uppercase tracking-wide border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-50 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTransfer(item.id)}
+                          className="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded hover:bg-red-50 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {transferNews.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-gray-400">
+                      No transfer news yet. Click &quot;+ Transfer News&quot; to add your first item.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer News Editor Modal */}
+      <Modal isOpen={isEditingTransfer} onClose={() => setIsEditingTransfer(false)}>
+        <div className="flex justify-between items-center mb-6 border-b pb-4">
+          <h2 className="text-2xl font-black uppercase font-serif">
+            {currentTransfer.id ? 'Edit Transfer News' : 'New Transfer News'}
+          </h2>
+          <span className="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-bold uppercase">⚡ Transfer</span>
+        </div>
+        <form onSubmit={handleSubmitTransfer} className="space-y-6">
+          <div>
+            <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Headline</label>
+            <input
+              required
+              value={currentTransfer.title}
+              onChange={e => setCurrentTransfer(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full border border-gray-300 p-3 text-lg font-serif font-bold rounded-sm focus:border-black outline-none"
+              placeholder="e.g. Mbappe to Arsenal — Done Deal"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Content / Story Details</label>
+            <textarea
+              required
+              rows={10}
+              value={currentTransfer.content}
+              onChange={e => setCurrentTransfer(prev => ({ ...prev, content: e.target.value }))}
+              className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none resize-y"
+              placeholder="Write the full transfer story, details, fees, contract length..."
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Status</label>
+            <select
+              value={currentTransfer.status}
+              onChange={e => setCurrentTransfer(prev => ({ ...prev, status: e.target.value as 'draft' | 'published' }))}
+              className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white"
+            >
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-4 pt-4 border-t border-gray-100">
+            <button type="button" onClick={() => setIsEditingTransfer(false)} className="px-6 py-3 font-bold uppercase text-xs text-gray-500 hover:text-black transition-colors">Cancel</button>
+            <button type="submit" className="bg-red-600 text-white px-8 py-3 font-bold uppercase text-xs hover:bg-red-800 transition-colors shadow-lg">
+              {currentTransfer.id ? 'Update Transfer' : 'Publish Transfer'}
             </button>
           </div>
         </form>

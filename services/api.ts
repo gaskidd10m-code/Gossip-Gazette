@@ -165,6 +165,34 @@ export const api = {
     await fetch(`/api/comments/${id}`, { method: 'DELETE' });
   },
 
+  // --- TRANSFER NEWS ---
+  getTransferNews: async (): Promise<import('../types').TransferNews[]> => {
+    const res = await fetch('/api/transfer-news');
+    if (!res.ok) return [];
+    return res.json();
+  },
+
+  createTransferNews: async (data: import('../types').TransferNewsFormData): Promise<import('../types').TransferNews> => {
+    const res = await fetch('/api/transfer-news', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return res.json();
+  },
+
+  updateTransferNews: async (id: string, data: Partial<import('../types').TransferNewsFormData>): Promise<void> => {
+    await fetch(`/api/transfer-news/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  },
+
+  deleteTransferNews: async (id: string): Promise<void> => {
+    await fetch(`/api/transfer-news/${id}`, { method: 'DELETE' });
+  },
+
   // --- SETTINGS ---
   getSetting: async (key: string): Promise<string> => {
     const res = await fetch(`/api/settings/${key}`);

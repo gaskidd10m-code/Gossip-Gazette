@@ -51,6 +51,14 @@ interface Author {
     expertise?: string[];
 }
 
+interface TransferNews {
+    id: string;
+    title: string;
+    content: string;
+    status: 'draft' | 'published';
+    createdAt: string;
+}
+
 // Database connection
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -309,6 +317,54 @@ const db = {
             month: parseInt(r.month),
             count: parseInt(r.count)
         }));
+    },
+
+    // Transfer News
+    async getTransferNews(): Promise<TransferNews[]> {
+        const result = await executeSql(`SELECT * FROM transfer_news ORDER BY created_at DESC`);
+        return result.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            content: r.content,
+            status: r.status as 'draft' | 'published',
+            createdAt: r.created_at
+        }));
+    },
+
+    async getPublishedTransferNews(): Promise<TransferNews[]> {
+        const result = await executeSql(`SELECT * FROM transfer_news WHERE status = 'published' ORDER BY created_at DESC`);
+        return result.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            content: r.content,
+            status: r.status as 'draft' | 'published',
+            createdAt: r.created_at
+        }));
+    },
+
+    async createTransferNews(data: Omit<TransferNews, 'id' | 'createdAt'>): Promise<TransferNews> {
+        const result = await executeSql(
+            `INSERT INTO transfer_news (title, content, status) VALUES ($1, $2, $3) RETURNING *`,
+            [data.title, data.content, data.status || 'draft']
+        );
+        const r = result[0];
+        return { id: r.id, title: r.title, content: r.content, status: r.status, createdAt: r.created_at };
+    },
+
+    async updateTransferNews(id: string, data: Partial<Omit<TransferNews, 'id' | 'createdAt'>>): Promise<void> {
+        const fields: string[] = [];
+        const values: any[] = [];
+        let idx = 1;
+        if (data.title !== undefined) { fields.push(`title = $${idx++}`); values.push(data.title); }
+        if (data.content !== undefined) { fields.push(`content = $${idx++}`); values.push(data.content); }
+        if (data.status !== undefined) { fields.push(`status = $${idx++}`); values.push(data.status); }
+        if (fields.length === 0) return;
+        values.push(id);
+        await executeSql(`UPDATE transfer_news SET ${fields.join(', ')} WHERE id = $${idx}`, values);
+    },
+
+    async deleteTransferNews(id: string): Promise<void> {
+        await executeSql(`DELETE FROM transfer_news WHERE id = $1`, [id]);
     }
 };
 
@@ -356,6 +412,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return await handleTags(req, res, path);
         } else if (path.startsWith('/archive')) {
             return await handleArchive(req, res, path);
+        } else if (path.startsWith('/transfer-news')) {
+            return await handleTransferNews(req, res, path);
         } else {
             res.status(404).json({ error: 'Not found' });
         }
@@ -544,6 +602,45 @@ async function handleTags(req: VercelRequest, res: VercelResponse, path: string)
         const tags = await db.getTags();
         return res.json(tags);
     }
+    res.status(404).json({ error: 'Not found' });
+}
+
+// --- TRANSFER NEWS HANDLERS ---
+async function handleTransferNews(req: VercelRequest, res: VercelResponse, path: string) {
+    const { method } = req;
+
+    // GET /transfer-news (all for admin)
+    if (method === 'GET' && path === '/transfer-news') {
+        const items = await db.getTransferNews();
+        return res.json(items);
+    }
+
+    // GET /transfer-news/published (public feed)
+    if (method === 'GET' && path === '/transfer-news/published') {
+        const items = await db.getPublishedTransferNews();
+        return res.json(items);
+    }
+
+    // POST /transfer-news
+    if (method === 'POST' && path === '/transfer-news') {
+        const item = await db.createTransferNews(req.body);
+        return res.json(item);
+    }
+
+    // PUT /transfer-news/:id
+    const updateMatch = path.match(/^\/transfer-news\/([^\/]+)$/);
+    if (method === 'PUT' && updateMatch) {
+        await db.updateTransferNews(updateMatch[1], req.body);
+        return res.json({ success: true });
+    }
+
+    // DELETE /transfer-news/:id
+    const deleteMatch = path.match(/^\/transfer-news\/([^\/]+)$/);
+    if (method === 'DELETE' && deleteMatch) {
+        await db.deleteTransferNews(deleteMatch[1]);
+        return res.json({ success: true });
+    }
+
     res.status(404).json({ error: 'Not found' });
 }
 
