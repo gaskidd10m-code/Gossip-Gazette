@@ -8,8 +8,8 @@ import { ArticleCard } from '../components/ArticleCard';
 
 export const ArchivePage: React.FC = () => {
     const searchParams = useSearchParams();
-    const yearParam = searchParams.get('year');
-    const monthParam = searchParams.get('month');
+    const yearParam = searchParams?.get('year');
+    const monthParam = searchParams?.get('month');
 
     const [archiveDates, setArchiveDates] = useState<{ year: number, month: number, count: number }[]>([]);
     const [articles, setArticles] = useState<Article[]>([]);

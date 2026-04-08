@@ -8,7 +8,7 @@ import { ArticleCard } from '../components/ArticleCard';
 
 export const SearchPage = () => {
   const searchParams = useSearchParams();
-  const query = searchParams.get('q') || '';
+  const query = searchParams?.get('q') || '';
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
 

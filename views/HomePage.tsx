@@ -160,7 +160,7 @@ const MobileNewsFeed = ({ articles }: { articles: Article[] }) => {
 export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[] }) => {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const searchParams = useSearchParams();
-  const categoryFilter = searchParams.get('cat');
+  const categoryFilter = searchParams?.get('cat');
 
   // Redirect legacy query params to new routes
   useEffect(() => {

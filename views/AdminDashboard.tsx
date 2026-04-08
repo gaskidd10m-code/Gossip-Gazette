@@ -23,7 +23,7 @@ const Modal = ({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => 
 export const AdminDashboard = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const editId = searchParams.get('editId');
+  const editId = searchParams?.get('editId');
 
   const [activeTab, setActiveTab] = useState<'articles' | 'categories' | 'comments' | 'settings' | 'transfer'>('articles');
   const [articles, setArticles] = useState<Article[]>([]);
