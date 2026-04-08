@@ -7,7 +7,8 @@ import { Author, Article } from '../types';
 import { ArticleCard } from '../components/ArticleCard';
 
 export const AuthorPage = ({ initialArticles = [], initialAuthor = null }: { initialArticles?: Article[]; initialAuthor?: Author | null }) => {
-    const { slug } = useParams<{ slug: string }>();
+    const params = useParams<{ slug: string }>();
+    const slug = params?.slug;
     const [articles, setArticles] = useState<Article[]>(initialArticles);
     const [author, setAuthor] = useState<Author | null>(initialAuthor);
     const [loading, setLoading] = useState(initialArticles.length === 0 && !initialAuthor);

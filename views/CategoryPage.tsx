@@ -7,7 +7,8 @@ import { api } from '../services/api';
 import { ArticleCard } from '../components/ArticleCard';
 
 export const CategoryPage = ({ initialArticles = [], initialCategory = null }: { initialArticles?: Article[]; initialCategory?: Category | null }) => {
-    const { slug } = useParams<{ slug: string }>();
+    const params = useParams<{ slug: string }>();
+    const slug = params?.slug;
     const [articles, setArticles] = useState<Article[]>(initialArticles);
     const [category, setCategory] = useState<Category | null>(initialCategory);
     const [loading, setLoading] = useState(initialArticles.length === 0 && !initialCategory);
