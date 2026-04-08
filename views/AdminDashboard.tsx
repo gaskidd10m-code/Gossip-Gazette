@@ -163,7 +163,7 @@ export const AdminDashboard = () => {
   const handleCreate = () => {
     setCurrentArticle({
       title: '', slug: '', excerpt: '', content: '', coverImage: 'https://picsum.photos/800/600',
-      categoryName: categories[0]?.name || '', categoryId: categories[0]?.id || '',
+      categoryName: categories[0]?.name || '', categoryId: String(categories[0]?.id || ''),
       tags: [], status: 'draft', publishedAt: new Date().toISOString(), source: ''
     });
     setUseImageUpload(false);
@@ -228,8 +228,8 @@ export const AdminDashboard = () => {
         slug: !prev.id ? generateSlug(value) : prev.slug
       }));
     } else if (name === 'categoryId') {
-      const cat = categories.find(c => c.id === value);
-      setCurrentArticle(prev => ({ ...prev, categoryId: value, categoryName: cat?.name || '' }));
+      const cat = categories.find(c => String(c.id) === String(value));
+      setCurrentArticle(prev => ({ ...prev, categoryId: String(value), categoryName: cat?.name || '' }));
     } else if (name === 'tags') {
       // Simple comma separated handling
       setCurrentArticle(prev => ({ ...prev, tags: value.split(',').map(t => t.trim()) }));
@@ -404,7 +404,7 @@ export const AdminDashboard = () => {
           // Filter articles based on selected category
           const filteredArticles = selectedCategory === 'all'
             ? articles
-            : articles.filter(a => a.categoryId === selectedCategory);
+            : articles.filter(a => String(a.categoryId) === String(selectedCategory));
 
           return (
             <>
@@ -438,7 +438,7 @@ export const AdminDashboard = () => {
                 >
                   <option value="all">All Categories</option>
                   {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    <option key={cat.id} value={String(cat.id)}>{cat.name}</option>
                   ))}
                 </select>
                 {selectedCategory !== 'all' && (
@@ -687,8 +687,8 @@ export const AdminDashboard = () => {
 
               <div>
                 <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Category</label>
-                <select name="categoryId" value={currentArticle.categoryId} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white">
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                <select name="categoryId" value={String(currentArticle.categoryId || '')} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white">
+                  {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
                 </select>
               </div>
 
