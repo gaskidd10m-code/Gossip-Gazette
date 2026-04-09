@@ -13,7 +13,7 @@ const BentoGrid = ({ articles }: { articles: Article[] }) => {
   const [main, sub1, sub2] = articles;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-1 md:gap-8 mb-16 border-b border-gray-200 pb-16">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-1 md:gap-6 mb-10 border-b border-gray-100 pb-10">
       {/* Main Feature */}
       <div className="md:col-span-8">
         <ArticleCard
@@ -40,8 +40,8 @@ const BentoGrid = ({ articles }: { articles: Article[] }) => {
 
 const SectionTech = ({ articles }: { articles: Article[] }) => (
   <section className="mb-16">
-    <div className="flex items-end justify-between border-b-2 border-black mb-8 pb-2">
-      <h3 className="font-sans font-black text-2xl uppercase tracking-widest">Technology</h3>
+    <div className="flex items-end justify-between border-b border-black mb-6 pb-2">
+      <h3 className="font-sans font-black text-xl uppercase tracking-widest">Technology</h3>
     </div>
     <div className="space-y-8">
       {articles.slice(0, 3).map(article => (
@@ -53,6 +53,24 @@ const SectionTech = ({ articles }: { articles: Article[] }) => (
       ))}
     </div>
   </section>
+);
+
+const SportsNewsTicker = ({ sportsNews }: { sportsNews: import('../types').SportsNews[] }) => (
+  <div className="bg-red-50 border-y border-red-100 p-3 mb-10 overflow-hidden relative group">
+    <div className="flex items-center gap-4">
+      <span className="bg-red-600 text-white text-[10px] font-black px-2 py-1 uppercase rounded-sm shrink-0">Live Sports</span>
+      <div className="overflow-hidden relative flex-1 h-5">
+        <div className="animate-ticker-slow whitespace-nowrap inline-block font-sans font-bold text-xs text-gray-800">
+          {sportsNews.length > 0 ? sportsNews.map(item => (
+            <span key={item.id} className="mx-6">
+              <span className="text-red-600 mr-2">●</span> {item.title}
+            </span>
+          )) : 'Waiting for live updates...'}
+        </div>
+      </div>
+      <Link href="/sports" className="text-[10px] font-black uppercase text-red-600 hover:underline shrink-0">View Hub →</Link>
+    </div>
+  </div>
 );
 
 const SectionSports = ({ articles }: { articles: Article[] }) => (
@@ -159,6 +177,7 @@ const MobileNewsFeed = ({ articles }: { articles: Article[] }) => {
 
 export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[] }) => {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
+  const [sportsNews, setSportsNews] = useState<import('../types').SportsNews[]>([]);
   const searchParams = useSearchParams();
   const categoryFilter = searchParams?.get('cat');
 
@@ -176,36 +195,29 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
 
   // Parallel fetching for dashboard
   useEffect(() => {
-    // If no articles initially, or in background, load fresh data
     const loadData = async () => {
       try {
-        const allArticles = await api.getArticles();
-        if (allArticles.length > 0) {
-          setArticles(allArticles);
-        }
+        const [allArticles, allSportsNews] = await Promise.all([
+          api.getArticles(),
+          api.getSportsNews()
+        ]);
+        if (allArticles.length > 0) setArticles(allArticles);
+        if (allSportsNews.length > 0) setSportsNews(allSportsNews.filter(n => n.status === 'published').slice(0, 10));
       } catch (err) {
         console.error('Failed to load fresh articles:', err);
       }
     };
-    // Only fetch if not already populated on server or if we want to refresh
-    if (articles.length === 0) {
-      loadData();
-    }
-  }, [articles.length]);
+    loadData();
+  }, []);
 
   const sportsArticles = articles.filter(a => a.categoryName === 'Sports');
   const techArticles = articles.filter(a => a.categoryName === 'Technology');
 
-  // If filtered (should redirect, but render generic just in case)
   if (categoryFilter) return null;
 
   return (
-    <div>
-      {/* Mobile Page Title */}
-      <div className="md:hidden mb-6">
-        <h1 className="font-serif font-black text-3xl border-b-4 border-black pb-2 inline-block">Home Page</h1>
-        <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-      </div>
+    <div className="max-w-6xl mx-auto">
+      <SportsNewsTicker sportsNews={sportsNews} />
 
       {/* Desktop Hero */}
       <div className="hidden md:block">
@@ -215,17 +227,17 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
       {/* Mobile News Feed (Replaces Hero on Mobile) */}
       <MobileNewsFeed articles={articles} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
         {/* Main Content Column */}
         <div className="lg:col-span-8">
           <SectionTech articles={techArticles.length ? techArticles : articles.slice(2, 5)} />
 
-          <div className="border-t border-gray-200 my-12"></div>
+          <div className="border-t border-gray-100 my-8"></div>
 
           {/* List View for Politics/General */}
-          <div className="space-y-10">
-            <div className="flex justify-between items-baseline mb-6">
-              <h3 className="font-sans font-black text-xl uppercase tracking-widest">Latest Stories</h3>
+          <div className="space-y-6">
+            <div className="flex justify-between items-baseline mb-4 border-b border-black pb-2">
+              <h3 className="font-sans font-black text-lg uppercase tracking-widest text-black">Latest Stories</h3>
             </div>
             {articles.slice(3, 15).map(article => (
               <ArticleCard
@@ -239,12 +251,35 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
 
         {/* Sidebar Column */}
         <div className="lg:col-span-4">
-          <Sidebar />
+          <div className="lg:sticky lg:top-24">
+            <Sidebar />
+            
+            {/* Added Sports News Hub Card in Sidebar */}
+            <div className="mt-8 bg-black text-white p-6 rounded-sm">
+                <h4 className="text-red-600 font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+                    Sports Today
+                </h4>
+                <div className="space-y-4">
+                    {sportsNews.slice(0, 3).map(item => (
+                        <div key={item.id} className="border-b border-gray-800 pb-4 last:border-0 last:pb-0">
+                            <Link href="/sports" className="hover:text-red-500 transition-colors">
+                                <h5 className="font-serif font-bold text-sm leading-tight mb-1 line-clamp-2">{item.title}</h5>
+                                <span className="text-[10px] text-gray-500 uppercase font-black">{item.category}</span>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+                <Link href="/sports" className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest border border-gray-800 py-2 hover:bg-white hover:text-black transition-all">
+                    Full Sports Hub
+                </Link>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Horizontal Scroll Section */}
-      <div className="mt-20">
+      <div className="mt-12">
         <SectionSports articles={sportsArticles.length ? sportsArticles : articles} />
       </div>
     </div>

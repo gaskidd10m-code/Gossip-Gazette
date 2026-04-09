@@ -47,8 +47,8 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
     if (variant === 'hero') {
         return (
             <div ref={contentRef} className="group relative">
-                <div className="overflow-hidden mb-6 rounded-sm shadow-md">
-                    <img src={article.coverImage} alt={article.title} className="w-full h-64 md:h-[500px] object-contain bg-gray-100 transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="overflow-hidden mb-4 rounded-sm shadow-sm">
+                    <img src={article.coverImage} alt={article.title} className="w-full h-56 md:h-[400px] object-cover bg-gray-100 transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                 </div>
                 <div className="flex items-center gap-3 text-red-700 text-xs font-bold uppercase tracking-widest mb-4">
                     <Link href={`/category/${article.categoryName.toLowerCase()}`} className="bg-red-50 px-3 py-1.5 rounded hover:bg-red-100 transition-colors">
@@ -58,11 +58,11 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                     <span className="text-gray-500">{new Date(article.publishedAt).toLocaleDateString()}</span>
                 </div>
                 <Link href={`/article/${article.slug}`}>
-                    <h2 className="font-serif text-3xl md:text-5xl font-black leading-tight mb-6 hover:text-red-800 transition-colors">
+                    <h2 className="font-serif text-2xl md:text-4xl font-black leading-tight mb-4 hover:text-red-800 transition-colors">
                         {renderTitle()}
                     </h2>
                 </Link>
-                <div className={`font-serif text-gray-700 leading-relaxed text-lg md:text-xl mb-6 transition-all duration-500`}>
+                <div className={`font-serif text-gray-700 leading-relaxed text-base md:text-lg mb-4 transition-all duration-500`}>
                     {renderContent()}
                 </div>
                 <Link
@@ -142,11 +142,11 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
             <div className="flex-1">
                 <span className="text-red-700 text-[10px] font-bold uppercase mb-2 block tracking-widest">{article.categoryName}</span>
                 <Link href={`/article/${article.slug}`}>
-                    <h4 className="font-serif font-bold text-2xl mb-4 leading-tight hover:text-red-800 transition-colors">
+                    <h4 className="font-serif font-bold text-xl mb-2 leading-tight hover:text-red-800 transition-colors">
                         {renderTitle()}
                     </h4>
                 </Link>
-                <div className={`text-sm text-gray-700 leading-relaxed mb-4 transition-all duration-500`}>
+                <div className={`text-xs text-gray-700 leading-relaxed mb-3 transition-all duration-500`}>
                     {renderContent()}
                 </div>
                 <p className="text-xs text-gray-400 font-bold mb-4">By {article.authorName} • {new Date(article.publishedAt).toLocaleDateString()}</p>

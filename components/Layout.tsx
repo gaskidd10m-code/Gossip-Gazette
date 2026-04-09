@@ -42,7 +42,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
   const isAuthenticated = typeof window !== 'undefined' ? api.checkAuth() : false;
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-gray-900 bg-white">
+    <div className="max-w-6xl mx-auto flex flex-col font-sans text-gray-900 bg-white">
 
       {/* 1. Breaking News Ticker */}
       <div className="bg-[#111111] text-white text-[10px] md:text-xs font-bold py-2 overflow-hidden relative whitespace-nowrap z-50 tracking-widest uppercase">
@@ -71,8 +71,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center gap-8 mx-8">
             <ul className="flex flex-row font-sans font-bold text-xs tracking-[0.2em] uppercase gap-8">
-              <li><Link href="/" className="hover:text-red-700 transition-colors">Home</Link></li>
-              <li><Link href="/sports" className="hover:text-red-700 transition-colors text-red-600">Sports News</Link></li>
+              <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>Home</Link></li>
+              <li><Link href="/sports" className={`hover:text-red-700 transition-colors ${pathname === '/sports' ? 'text-red-700 border-b-2 border-red-700 pb-1' : 'text-red-600'}`}>Sports News</Link></li>
               {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link href={`/category/${cat.slug}`} className="hover:text-red-700 transition-colors">{cat.name}</Link>
@@ -105,8 +105,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
         <nav className={`md:hidden border-t border-gray-100 ${isMenuOpen ? 'block' : 'hidden'} bg-white`}>
           <div className="container mx-auto px-6 py-4">
             <ul className="flex flex-col gap-4 font-sans font-bold text-xs tracking-[0.2em] uppercase">
-              <li><Link href="/" className="hover:text-red-700 block transition-colors">Home</Link></li>
-              <li><Link href="/sports" className="hover:text-red-700 block transition-colors text-red-600">Sports News</Link></li>
+              <li><Link href="/" className={`hover:text-red-700 block transition-colors ${pathname === '/' ? 'text-red-700' : ''}`}>Home</Link></li>
+              <li><Link href="/sports" className={`hover:text-red-700 block transition-colors ${pathname === '/sports' ? 'text-red-700' : 'text-red-600'}`}>Sports News</Link></li>
               {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link href={`/category/${cat.slug}`} className="hover:text-red-700 block transition-colors">{cat.name}</Link>
@@ -118,7 +118,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
       </header>
 
       {/* 3. Main Content */}
-      <main className="flex-grow container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-7xl">
+      <main className="flex-grow container mx-auto px-4 md:px-6 py-6 md:py-8 max-w-6xl">
         {children}
       </main>
 

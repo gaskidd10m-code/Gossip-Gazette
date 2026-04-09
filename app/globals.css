@@ -33,6 +33,15 @@ body {
   animation: ticker 30s linear infinite;
 }
 
+.animate-ticker-slow {
+  animation: ticker 60s linear infinite;
+}
+
+.group:hover .animate-ticker-slow,
+.group:hover .animate-ticker {
+  animation-play-state: paused;
+}
+
 /* ── Scrollbar Utilities ─────────────────────────────────────────── */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar {
