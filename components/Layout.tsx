@@ -55,34 +55,26 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm transition-all duration-300">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center relative">
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-2xl p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors order-1 md:order-none"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? '✕' : '☰'}
-          </button>
-
-          {/* Logo */}
-          <Link href="/" className="order-2 md:order-none">
-            <img src="/logo.png" alt="Gossip Gazette" className="h-16 md:h-20 w-auto object-contain" />
+          {/* Logo - Left aligned on mobile */}
+          <Link href="/" className="order-1 flex-shrink-0">
+            <img src="/logo.png" alt="Gossip Gazette" className="h-10 md:h-20 w-auto object-contain" />
           </Link>
 
-          {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center gap-8 mx-8">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8 mx-8 order-2">
             <ul className="flex flex-row font-sans font-bold text-xs tracking-[0.2em] uppercase gap-8">
               <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>Home</Link></li>
-              <li><Link href="/sports" className={`hover:text-red-700 transition-colors ${pathname === '/sports' ? 'text-red-700 border-b-2 border-red-700 pb-1' : 'text-red-600'}`}>Sports News</Link></li>
+              <li><Link href="/sports" className={`hover:text-red-700 transition-colors ${pathname === '/sports' ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>Sports News</Link></li>
               {categories.map((cat) => (
                 <li key={cat.id}>
-                  <Link href={`/category/${cat.slug}`} className="hover:text-red-700 transition-colors">{cat.name}</Link>
+                  <Link href={`/category/${cat.slug}`} className={`hover:text-red-700 transition-colors ${pathname === `/category/${cat.slug}` ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>{cat.name}</Link>
                 </li>
               ))}
             </ul>
           </nav>
 
-          {/* Search Bar */}
-          <div className="flex items-center gap-4 order-3 md:order-none">
+          {/* Search Bar & Mobile Toggle */}
+          <div className="flex items-center gap-4 order-3">
             <form onSubmit={handleSearch} className="relative hidden md:block group">
               <input
                 type="text"
@@ -95,21 +87,33 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </button>
             </form>
-            <button className="md:hidden text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-            </button>
+            
+            {/* Mobile Actions */}
+            <div className="md:hidden flex items-center gap-2">
+               <button className="text-gray-600 p-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+               </button>
+               <button
+                  className="text-2xl p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                  {isMenuOpen ? '✕' : '☰'}
+                </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
-        <nav className={`md:hidden border-t border-gray-100 ${isMenuOpen ? 'block' : 'hidden'} bg-white`}>
-          <div className="container mx-auto px-6 py-4">
-            <ul className="flex flex-col gap-4 font-sans font-bold text-xs tracking-[0.2em] uppercase">
-              <li><Link href="/" className={`hover:text-red-700 block transition-colors ${pathname === '/' ? 'text-red-700' : ''}`}>Home</Link></li>
-              <li><Link href="/sports" className={`hover:text-red-700 block transition-colors ${pathname === '/sports' ? 'text-red-700' : 'text-red-600'}`}>Sports News</Link></li>
-              {categories.map((cat) => (
+        {/* Mobile Navigation Dropdown - Straight horizontal style */}
+        <nav className={`md:hidden border-t border-gray-100 ${isMenuOpen ? 'block' : 'hidden'} bg-white overflow-x-auto hide-scrollbar whitespace-nowrap`}>
+          <div className="container mx-auto px-4 py-3">
+            <ul className="flex flex-row items-center gap-6 font-sans font-bold text-[10px] tracking-[0.1em] uppercase">
+              <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700' : ''}`}>Home</Link></li>
+              <li><Link href="/sports" className={`hover:text-red-700 transition-colors ${pathname === '/sports' ? 'text-red-700' : ''}`}>Sports News</Link></li>
+              <li><Link href="/category/technology" className={`hover:text-red-700 transition-colors ${pathname === '/category/technology' ? 'text-red-700' : ''}`}>Technology</Link></li>
+              <li><Link href="/category/world-news" className={`hover:text-red-700 transition-colors ${pathname === '/category/world-news' ? 'text-red-700' : ''}`}>World News</Link></li>
+              {categories.filter(c => c.slug !== 'technology' && c.slug !== 'world-news').map((cat) => (
                 <li key={cat.id}>
-                  <Link href={`/category/${cat.slug}`} className="hover:text-red-700 block transition-colors">{cat.name}</Link>
+                  <Link href={`/category/${cat.slug}`} className={`hover:text-red-700 transition-colors ${pathname === `/category/${cat.slug}` ? 'text-red-700' : ''}`}>{cat.name}</Link>
                 </li>
               ))}
             </ul>
