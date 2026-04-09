@@ -92,7 +92,7 @@ export const AdminDashboard = () => {
               [{ 'header': [1, 2, 3, false] }],
               ['bold', 'italic', 'underline', 'strike', 'blockquote'],
               [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-              ['link', 'image'],
+              ['link', 'image', 'video'],
               ['clean']
             ]
           }
@@ -170,18 +170,7 @@ export const AdminDashboard = () => {
     setIsEditing(true);
   };
 
-  const isShortNews = currentArticle.tags.includes('type:short');
 
-  const toggleShortNews = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    setCurrentArticle(prev => {
-      const newTags = prev.tags.filter(t => t !== 'type:short');
-      if (checked) {
-        newTags.push('type:short');
-      }
-      return { ...prev, tags: newTags };
-    });
-  };
 
   const getWordCount = (html: string) => {
     const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -331,7 +320,7 @@ export const AdminDashboard = () => {
           </button>
           {activeTab === 'sports-news' ? (
             <button onClick={handleCreateSportsNews} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
-              + Sports News
+              + Short News
             </button>
           ) : (
             <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
@@ -371,7 +360,7 @@ export const AdminDashboard = () => {
           onClick={() => setActiveTab('sports-news')}
           className={`pb-4 text-sm font-bold uppercase tracking-widest ${activeTab === 'sports-news' ? 'border-b-2 border-red-600 text-red-600' : 'text-gray-400 hover:text-black'}`}
         >
-          ⚡ Sports News
+          ⚡ Short News
         </button>
       </div>
 
@@ -654,6 +643,9 @@ export const AdminDashboard = () => {
                   </span>
                 </div>
                 <div className="bg-white border border-gray-300 rounded-sm">
+                  <style>{`
+                    ${currentArticle.categoryName !== 'Entertainment and Trends' ? '.ql-video { display: none !important; }' : ''}
+                  `}</style>
                   <div ref={quillRef} className="h-96"></div>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 300+ words for AdSense approval.</p>
@@ -675,25 +667,12 @@ export const AdminDashboard = () => {
                 </select>
               </div>
 
-              <div className="bg-white p-3 border border-gray-200 rounded-sm mb-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isShortNews}
-                    onChange={toggleShortNews}
-                    className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                  />
-                  <div>
-                    <span className="block text-sm font-bold">Short News</span>
-                    <span className="text-[10px] text-gray-400">Mark as bite-sized content (ideal for Sports)</span>
-                  </div>
-                </label>
-              </div>
+
 
               <div>
                 <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Category</label>
                 <select name="categoryId" value={String(currentArticle.categoryId || '')} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white">
-                  {categories.filter(c => c.name !== 'Sports').map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
+                  {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
                 </select>
               </div>
 
@@ -747,7 +726,7 @@ export const AdminDashboard = () => {
         </form>
       </Modal>
 
-      {/* Sports News Tab Content */}
+      {/* Short News Tab Content */}
       {activeTab === 'sports-news' && (
         <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
           <div className="overflow-x-auto">
@@ -796,7 +775,7 @@ export const AdminDashboard = () => {
                 {sportsNews.length === 0 && (
                   <tr>
                     <td colSpan={4} className="p-8 text-center text-gray-400">
-                      No sports news yet. Click &quot;+ Sports News&quot; to add your first item.
+                      No short news yet. Click &quot;+ Short News&quot; to add your first item.
                     </td>
                   </tr>
                 )}
@@ -806,13 +785,13 @@ export const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Sports News Editor Modal */}
+      {/* Short News Editor Modal */}
       <Modal isOpen={isEditingSportsNews} onClose={() => setIsEditingSportsNews(false)}>
         <div className="flex justify-between items-center mb-6 border-b pb-4">
           <h2 className="text-2xl font-black uppercase font-serif">
-            {currentSportsNews.id ? 'Edit Sports News' : 'New Sports News'}
+            {currentSportsNews.id ? 'Edit Short News' : 'New Short News'}
           </h2>
-          <span className="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-bold uppercase">⚡ Transfer</span>
+          <span className="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-bold uppercase">⚡ Short News</span>
         </div>
         <form onSubmit={handleSubmitSportsNews} className="space-y-6">
           <div>
@@ -822,7 +801,7 @@ export const AdminDashboard = () => {
               value={currentSportsNews.title}
               onChange={e => setCurrentSportsNews(prev => ({ ...prev, title: e.target.value }))}
               className="w-full border border-gray-300 p-3 text-lg font-serif font-bold rounded-sm focus:border-black outline-none"
-              placeholder="e.g. Mbappe to Arsenal — Done Deal"
+              placeholder="e.g. Breaking update..."
             />
           </div>
           <div>
@@ -833,7 +812,7 @@ export const AdminDashboard = () => {
               value={currentSportsNews.content}
               onChange={e => setCurrentSportsNews(prev => ({ ...prev, content: e.target.value }))}
               className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none resize-y"
-              placeholder="Write the full transfer story, details, fees, contract length..."
+              placeholder="Write the full story, details, etc..."
             />
           </div>
           <div>
@@ -861,6 +840,7 @@ export const AdminDashboard = () => {
               >
                 <option value="Transfer News">Transfer News</option>
                 <option value="Sports Today">Sports Today</option>
+                <option value="General">General Short News</option>
               </select>
             </div>
             <div>
