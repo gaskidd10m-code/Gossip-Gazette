@@ -12,6 +12,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [tickerText, setTickerText] = useState(
     '🔴 LIVE: Global markets rally as tech sector booms • Historic climate treaty signed in Geneva • Local cat stuck in tree actually fine, just wanted a view •'
@@ -25,6 +26,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
     });
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,21 +91,27 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
             {/* Mobile Actions */}
             <div className="md:hidden flex items-center gap-2">
                <button className="text-gray-600 p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                </button>
+               <button
+                  className="text-2xl p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                  {isMenuOpen ? '✕' : '☰'}
+                </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Navigation - Always visible horizontal style */}
-        <nav className="md:hidden border-t border-gray-100 bg-white overflow-x-auto hide-scrollbar whitespace-nowrap">
-          <div className="w-full px-4 py-4">
-            <ul className="flex flex-row items-center gap-8 font-sans font-black text-[13px] tracking-widest uppercase">
+        {/* Mobile Navigation Dropdown */}
+        <nav className={`md:hidden border-t border-gray-100 ${isMenuOpen ? 'block' : 'hidden'} bg-white overflow-x-auto hide-scrollbar whitespace-nowrap`}>
+          <div className="w-full px-4 py-5">
+            <ul className="flex flex-row items-center gap-8 font-sans font-black text-[14px] tracking-widest uppercase">
               <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700' : ''}`}>Home</Link></li>
               <li><Link href="/sports" className={`hover:text-red-700 transition-colors ${pathname === '/sports' ? 'text-red-700' : ''}`}>Sports News</Link></li>
               <li><Link href="/category/technology" className={`hover:text-red-700 transition-colors ${pathname === '/category/technology' ? 'text-red-700' : ''}`}>Technology</Link></li>
               <li><Link href="/category/world-news" className={`hover:text-red-700 transition-colors ${pathname === '/category/world-news' ? 'text-red-700' : ''}`}>World News</Link></li>
-              {categories.slice(0, 5).filter(c => c.slug !== 'technology' && c.slug !== 'world-news').map((cat) => (
+              {categories.filter(c => c.slug !== 'technology' && c.slug !== 'world-news').map((cat) => (
                 <li key={cat.id}>
                   <Link href={`/category/${cat.slug}`} className={`hover:text-red-700 transition-colors ${pathname === `/category/${cat.slug}` ? 'text-red-700' : ''}`}>{cat.name}</Link>
                 </li>

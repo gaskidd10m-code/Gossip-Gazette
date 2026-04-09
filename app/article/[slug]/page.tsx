@@ -169,7 +169,7 @@ export default async function ArticleSSRPage(
               </h1>
 
               {/* Excerpt */}
-              <p className="font-serif text-lg md:text-xl lg:text-2xl text-gray-600 leading-relaxed mb-4 md:mb-6">
+              <p className="font-serif text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed mb-4 md:mb-6">
                 {article.excerpt}
               </p>
 
@@ -197,7 +197,7 @@ export default async function ArticleSSRPage(
 
             {/* Article Body — Server-rendered HTML content */}
             <div
-              className="font-serif text-base md:text-lg leading-7 md:leading-8 text-gray-800 space-y-4 md:space-y-6 article-body"
+              className="font-serif text-sm md:text-base leading-6 md:leading-7 text-gray-800 space-y-4 md:space-y-6 article-body"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
 
