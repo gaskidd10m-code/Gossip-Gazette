@@ -191,11 +191,11 @@ export const AdminDashboard = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // AdSense Quality Check: 450 word minimum for published articles
+    // AdSense Quality Check: 300 word minimum for published articles
     if (currentArticle.status === 'published') {
       const wordCount = getWordCount(currentArticle.content);
-      if (wordCount < 450) {
-        alert(`❌ AdSense Quality Requirement: Article must have at least 450 words to be published (Current: ${wordCount}).\n\nPlease add more original content before publishing.`);
+      if (wordCount < 300) {
+        alert(`❌ AdSense Quality Requirement: Article must have at least 300 words to be published (Current: ${wordCount}).\n\nPlease add more original content before publishing.`);
         return;
       }
     }
@@ -644,14 +644,14 @@ export const AdminDashboard = () => {
               <div>
                 <div className="flex justify-between items-end mb-1">
                   <label className="block text-xs font-bold uppercase text-gray-500">Body Content</label>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${getWordCount(currentArticle.content) >= 450 ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-400'}`}>
-                    Word Count: {getWordCount(currentArticle.content)} / 450 (Target)
+                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${getWordCount(currentArticle.content) >= 300 ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-400'}`}>
+                    Word Count: {getWordCount(currentArticle.content)} / 300 (Target)
                   </span>
                 </div>
                 <div className="bg-white border border-gray-300 rounded-sm">
                   <div ref={quillRef} className="h-96"></div>
                 </div>
-                <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 450+ words for AdSense approval.</p>
+                <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 300+ words for AdSense approval.</p>
               </div>
 
               <div>
