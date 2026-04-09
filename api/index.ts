@@ -55,7 +55,8 @@ interface SportsNews {
     id: string;
     title: string;
     content: string;
-    category: 'Sports News' | 'Sports Today';
+    imageUrl?: string;
+    category: 'Transfer News' | 'Sports Today';
     status: 'draft' | 'published';
     createdAt: string;
 }
@@ -327,7 +328,8 @@ const db = {
             id: r.id,
             title: r.title,
             content: r.content,
-            category: r.category as 'Sports News' | 'Sports Today',
+            imageUrl: r.image_url,
+            category: r.category as 'Transfer News' | 'Sports Today',
             status: r.status as 'draft' | 'published',
             createdAt: r.created_at
         }));
@@ -339,7 +341,8 @@ const db = {
             id: r.id,
             title: r.title,
             content: r.content,
-            category: r.category as 'Sports News' | 'Sports Today',
+            imageUrl: r.image_url,
+            category: r.category as 'Transfer News' | 'Sports Today',
             status: r.status as 'draft' | 'published',
             createdAt: r.created_at
         }));
@@ -368,7 +371,7 @@ const db = {
     },
 
     async deleteSportsNews(id: string): Promise<void> {
-        await executeSql(`DELETE FROM transfer_news WHERE id = $1`, [id]);
+        await executeSql(`DELETE FROM sports_news WHERE id = $1`, [id]);
     }
 };
 

@@ -69,6 +69,7 @@ export interface SportsNews {
   id: string;
   title: string;
   content: string;
+  imageUrl?: string;
   category: 'Transfer News' | 'Sports Today';
   status: 'draft' | 'published';
   createdAt: string;

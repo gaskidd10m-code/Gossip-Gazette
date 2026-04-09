@@ -61,6 +61,7 @@ const mapSportsNews = (row: any) => ({
   id: row.id,
   title: row.title,
   content: row.content,
+  imageUrl: row.image_url,
   category: row.category as 'Transfer News' | 'Sports Today',
   status: row.status as 'draft' | 'published',
   createdAt: row.created_at,
@@ -242,19 +243,20 @@ export const neonService = {
     );
     return rows.map(mapSportsNews);
   },
-  createSportsNews: async (data: { title: string; content: string; category?: string; status?: string }) => {
+  createSportsNews: async (data: { title: string; content: string; imageUrl?: string; category?: string; status?: string }) => {
     const rows = await executeSql(
-      `INSERT INTO sports_news (title, content, category, status) VALUES ($1,$2,$3,$4) RETURNING *`,
-      [data.title, data.content, data.category || 'Sports Today', data.status || 'draft']
+      `INSERT INTO sports_news (title, content, image_url, category, status) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [data.title, data.content, data.imageUrl || null, data.category || 'Sports Today', data.status || 'draft']
     );
     return mapSportsNews(rows[0]);
   },
-  updateSportsNews: async (id: string, data: Partial<{ title: string; content: string; category: string; status: string }>) => {
+  updateSportsNews: async (id: string, data: Partial<{ title: string; content: string; imageUrl: string; category: string; status: string }>) => {
     const fields: string[] = [];
     const values: any[] = [];
     let idx = 1;
     if (data.title !== undefined) { fields.push(`title = $${idx++}`); values.push(data.title); }
     if (data.content !== undefined) { fields.push(`content = $${idx++}`); values.push(data.content); }
+    if (data.imageUrl !== undefined) { fields.push(`image_url = $${idx++}`); values.push(data.imageUrl); }
     if (data.category !== undefined) { fields.push(`category = $${idx++}`); values.push(data.category); }
     if (data.status !== undefined) { fields.push(`status = $${idx++}`); values.push(data.status); }
     if (!fields.length) return;

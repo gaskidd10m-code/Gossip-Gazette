@@ -11,7 +11,7 @@ export const metadata = {
 async function getPublishedSportsNews(): Promise<SportsNews[]> {
   try {
     const rows = await db.query(
-      `SELECT id, title, content, category, status, created_at AS "createdAt"
+      `SELECT id, title, content, image_url AS "imageUrl", category, status, created_at AS "createdAt"
        FROM sports_news 
        WHERE status = 'published'
        ORDER BY created_at DESC`
@@ -54,6 +54,17 @@ export default async function SportsNewsPage() {
                   
                   {/* Category Bar Accent */}
                   <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${item.category === 'Transfer News' ? 'from-red-600' : 'from-blue-600'} to-black transform opacity-80 z-10`} />
+
+                  {item.imageUrl && (
+                    <div className="relative w-full h-64 md:h-80 overflow-hidden">
+                      <img 
+                        src={item.imageUrl} 
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </div>
+                  )}
 
                   <div className="p-6 md:p-8">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">

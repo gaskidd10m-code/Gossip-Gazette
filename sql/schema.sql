@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS sports_news (
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   category TEXT DEFAULT 'Transfer News',
+  image_url TEXT,
   status TEXT DEFAULT 'draft',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

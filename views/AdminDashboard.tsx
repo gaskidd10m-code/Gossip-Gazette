@@ -48,7 +48,7 @@ export const AdminDashboard = () => {
   const [sportsNews, setSportsNews] = useState<SportsNews[]>([]);
   const [isEditingSportsNews, setIsEditingSportsNews] = useState(false);
   const [currentSportsNews, setCurrentSportsNews] = useState<SportsNewsFormData & { id?: string }>({
-    title: '', content: '', category: 'Sports Today', status: 'draft'
+    title: '', content: '', imageUrl: '', category: 'Sports Today', status: 'draft'
   });
 
   // Image Upload State
@@ -298,7 +298,7 @@ export const AdminDashboard = () => {
   };
 
   const handleCreateSportsNews = () => {
-    setCurrentSportsNews({ title: '', content: '', category: 'Sports Today', status: 'draft' });
+    setCurrentSportsNews({ title: '', content: '', imageUrl: '', category: 'Sports Today', status: 'draft' });
     setIsEditingSportsNews(true);
   };
 
@@ -688,7 +688,7 @@ export const AdminDashboard = () => {
               <div>
                 <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Category</label>
                 <select name="categoryId" value={String(currentArticle.categoryId || '')} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white">
-                  {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
+                  {categories.filter(c => c.name !== 'Sports').map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
                 </select>
               </div>
 
@@ -831,6 +831,20 @@ export const AdminDashboard = () => {
               placeholder="Write the full transfer story, details, fees, contract length..."
             />
           </div>
+          <div>
+            <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Image URL (Optional)</label>
+            <input
+              value={currentSportsNews.imageUrl || ''}
+              onChange={e => setCurrentSportsNews(prev => ({ ...prev, imageUrl: e.target.value }))}
+              className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none bg-white"
+              placeholder="https://..."
+            />
+            {currentSportsNews.imageUrl && (
+              <div className="mt-2 h-40 w-full overflow-hidden rounded-sm border border-gray-200">
+                <img src={currentSportsNews.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
           
             <div>
               <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Category</label>
@@ -859,7 +873,7 @@ export const AdminDashboard = () => {
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-100">
             <button type="button" onClick={() => setIsEditingSportsNews(false)} className="px-6 py-3 font-bold uppercase text-xs text-gray-500 hover:text-black transition-colors">Cancel</button>
             <button type="submit" className="bg-red-600 text-white px-8 py-3 font-bold uppercase text-xs hover:bg-red-800 transition-colors shadow-lg">
-              {currentSportsNews.id ? 'Update Transfer' : 'Publish Transfer'}
+              {currentSportsNews.id ? 'Update News' : 'Publish News'}
             </button>
           </div>
         </form>
