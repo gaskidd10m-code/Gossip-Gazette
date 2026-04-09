@@ -120,7 +120,7 @@ export default async function ArticleSSRPage(
         Server-rendered article shell — Google sees all of this instantly.
         Comments, share buttons, and interactive parts load via client component.
       */}
-      <article className="max-w-7xl mx-auto relative">
+      <article className="w-full relative px-4 md:px-12">
 
         {/* Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-12 mb-8 md:mb-12">

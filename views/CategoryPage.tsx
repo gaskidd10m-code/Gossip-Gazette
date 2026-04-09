@@ -59,7 +59,7 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
     }
 
     return (
-        <div className="container mx-auto">
+        <div className="w-full px-4 md:px-12">
             <div className="flex items-center gap-4 mb-8">
                 <h2 className="text-4xl font-black uppercase tracking-tight">{category.name}</h2>
                 <div className="h-1 bg-black flex-grow"></div>

@@ -27,7 +27,7 @@ export const SearchPage = () => {
   }, [query]);
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full px-4 md:px-12">
       <h2 className="text-3xl font-black font-serif mb-6 border-b-4 border-black pb-2">
         Search Results for: <span className="text-red-700">"{query}"</span>
       </h2>

@@ -27,7 +27,7 @@ export default async function SportsNewsPage() {
   const news = await getPublishedSportsNews();
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
+    <div className="w-full py-8 px-4 md:px-12">
       <div className="mb-12 border-b-[6px] border-black pb-6 text-center">
         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter font-serif mb-4 text-black flex items-center justify-center gap-4">
           <span className="text-red-600">⚽</span> Sports News Hub

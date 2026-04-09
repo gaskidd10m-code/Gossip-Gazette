@@ -58,7 +58,7 @@ export const AuthorPage = ({ initialArticles = [], initialAuthor = null }: { ini
     }
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="w-full px-4 md:px-12 py-8">
             {/* Author Header */}
             <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8 shadow-sm">
                 <div className="flex flex-col md:flex-row gap-6 items-start">

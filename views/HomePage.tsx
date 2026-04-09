@@ -43,7 +43,7 @@ const SectionTech = ({ articles }: { articles: Article[] }) => (
 
 const SectionSports = ({ articles }: { articles: Article[] }) => (
   <section className="mt-12 mb-16 bg-[#111] text-white -mx-4 md:-mx-6 px-4 md:px-6 py-12 rounded-sm shadow-2xl">
-    <div className="container mx-auto">
+    <div className="w-full">
       <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
         <h3 className="font-sans font-black text-2xl uppercase tracking-widest text-white">Sports Center</h3>
         <Link href="/sports" className="text-red-600 font-bold text-xs hover:underline decoration-2 underline-offset-4">ACCESS HUB →</Link>
@@ -170,7 +170,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
   if (categoryFilter) return null;
 
   return (
-    <div className="max-w-6xl mx-auto py-2 md:py-6">
+    <div className="w-full py-2 md:py-6">
       <div className="hidden md:block">
         <BentoGrid articles={articles.slice(0, 4)} />
       </div>
