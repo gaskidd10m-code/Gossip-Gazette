@@ -165,15 +165,15 @@ export const api = {
     await fetch(`/api/comments/${id}`, { method: 'DELETE' });
   },
 
-  // --- TRANSFER NEWS ---
-  getTransferNews: async (): Promise<import('../types').TransferNews[]> => {
-    const res = await fetch('/api/transfer-news');
+  // --- SPORTS NEWS ---
+  getSportsNews: async (): Promise<import('../types').SportsNews[]> => {
+    const res = await fetch('/api/sports-news');
     if (!res.ok) return [];
     return res.json();
   },
 
-  createTransferNews: async (data: import('../types').TransferNewsFormData): Promise<import('../types').TransferNews> => {
-    const res = await fetch('/api/transfer-news', {
+  createSportsNews: async (data: import('../types').SportsNewsFormData): Promise<import('../types').SportsNews> => {
+    const res = await fetch('/api/sports-news', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -181,16 +181,16 @@ export const api = {
     return res.json();
   },
 
-  updateTransferNews: async (id: string, data: Partial<import('../types').TransferNewsFormData>): Promise<void> => {
-    await fetch(`/api/transfer-news/${id}`, {
+  updateSportsNews: async (id: string, data: Partial<import('../types').SportsNewsFormData>): Promise<void> => {
+    await fetch(`/api/sports-news/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
 
-  deleteTransferNews: async (id: string): Promise<void> => {
-    await fetch(`/api/transfer-news/${id}`, { method: 'DELETE' });
+  deleteSportsNews: async (id: string): Promise<void> => {
+    await fetch(`/api/sports-news/${id}`, { method: 'DELETE' });
   },
 
   // --- SETTINGS ---

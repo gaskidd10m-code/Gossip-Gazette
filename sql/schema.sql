@@ -65,11 +65,12 @@ CREATE TABLE IF NOT EXISTS settings (
   value TEXT NOT NULL
 );
 
--- Transfer News Table
-CREATE TABLE IF NOT EXISTS transfer_news (
+-- Sports News Table (formerly Transfer News)
+CREATE TABLE IF NOT EXISTS sports_news (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   title TEXT NOT NULL,
   content TEXT NOT NULL,
+  category TEXT DEFAULT 'Transfer News',
   status TEXT DEFAULT 'draft',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

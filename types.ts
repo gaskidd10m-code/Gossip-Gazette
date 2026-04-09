@@ -65,12 +65,13 @@ export interface Comment {
 
 export type ArticleFormData = Omit<Article, 'id' | 'views' | 'authorId' | 'authorName'>;
 
-export interface TransferNews {
+export interface SportsNews {
   id: string;
   title: string;
   content: string;
+  category: 'Transfer News' | 'Sports Today';
   status: 'draft' | 'published';
   createdAt: string;
 }
 
-export type TransferNewsFormData = Omit<TransferNews, 'id' | 'createdAt'>;
+export type SportsNewsFormData = Omit<SportsNews, 'id' | 'createdAt'>;

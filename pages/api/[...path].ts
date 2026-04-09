@@ -6,7 +6,7 @@ interface Article { id: string; title: string; slug: string; excerpt: string; co
 interface Category { id: string; name: string; slug: string; }
 interface Comment { id: string; articleId: string; userId: string; userName: string; content: string; createdAt: string; parentId?: string; status: 'pending' | 'approved' | 'rejected'; }
 interface Author { id: string; name: string; slug: string; bio?: string; photoUrl?: string; email?: string; twitterUrl?: string; linkedinUrl?: string; expertise?: string[]; }
-interface TransferNews { id: string; title: string; content: string; status: 'draft' | 'published'; createdAt: string; }
+interface SportsNews { id: string; title: string; content: string; category: 'Transfer News' | 'Sports Today'; status: 'draft' | 'published'; createdAt: string; }
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -62,12 +62,12 @@ const db = {
     async getTags(): Promise<string[]> { const res = await executeSql(`SELECT DISTINCT unnest(tags) as tag FROM articles WHERE status = 'published' ORDER BY tag ASC`); return res.map(r => r.tag); },
     async getArchiveDates(): Promise<{ year: number, month: number, count: number }[]> { const res = await executeSql(`SELECT EXTRACT(YEAR FROM published_at) as year, EXTRACT(MONTH FROM published_at) as month, COUNT(*) as count FROM articles WHERE status = 'published' GROUP BY year, month ORDER BY year DESC, month DESC`); return res.map(r => ({ year: parseInt(r.year), month: parseInt(r.month), count: parseInt(r.count) })); },
 
-    // Transfer News
-    async getTransferNews(): Promise<TransferNews[]> { const result = await executeSql(`SELECT * FROM transfer_news ORDER BY created_at DESC`); return result.map((r: any) => ({ id: r.id, title: r.title, content: r.content, status: r.status as 'draft' | 'published', createdAt: r.created_at })); },
-    async getPublishedTransferNews(): Promise<TransferNews[]> { const result = await executeSql(`SELECT * FROM transfer_news WHERE status = 'published' ORDER BY created_at DESC`); return result.map((r: any) => ({ id: r.id, title: r.title, content: r.content, status: r.status as 'draft' | 'published', createdAt: r.created_at })); },
-    async createTransferNews(data: Omit<TransferNews, 'id' | 'createdAt'>): Promise<TransferNews> { const result = await executeSql(`INSERT INTO transfer_news (title, content, status) VALUES ($1, $2, $3) RETURNING *`, [data.title, data.content, data.status || 'draft']); const r = result[0]; return { id: r.id, title: r.title, content: r.content, status: r.status, createdAt: r.created_at }; },
-    async updateTransferNews(id: string, data: Partial<Omit<TransferNews, 'id' | 'createdAt'>>): Promise<void> { const fields: string[] = []; const values: any[] = []; let idx = 1; if (data.title !== undefined) { fields.push(`title = $${idx++}`); values.push(data.title); } if (data.content !== undefined) { fields.push(`content = $${idx++}`); values.push(data.content); } if (data.status !== undefined) { fields.push(`status = $${idx++}`); values.push(data.status); } if (fields.length === 0) return; values.push(id); await executeSql(`UPDATE transfer_news SET ${fields.join(', ')} WHERE id = $${idx}`, values); },
-    async deleteTransferNews(id: string): Promise<void> { await executeSql(`DELETE FROM transfer_news WHERE id = $1`, [id]); }
+    // Sports News
+    async getSportsNews(): Promise<SportsNews[]> { const result = await executeSql(`SELECT * FROM sports_news ORDER BY created_at DESC`); return result.map((r: any) => ({ id: r.id, title: r.title, content: r.content, category: r.category as 'Transfer News' | 'Sports Today', status: r.status as 'draft' | 'published', createdAt: r.created_at })); },
+    async getPublishedSportsNews(): Promise<SportsNews[]> { const result = await executeSql(`SELECT * FROM sports_news WHERE status = 'published' ORDER BY created_at DESC`); return result.map((r: any) => ({ id: r.id, title: r.title, content: r.content, category: r.category as 'Transfer News' | 'Sports Today', status: r.status as 'draft' | 'published', createdAt: r.created_at })); },
+    async createSportsNews(data: Omit<SportsNews, 'id' | 'createdAt'>): Promise<SportsNews> { const result = await executeSql(`INSERT INTO sports_news (title, content, category, status) VALUES ($1, $2, $3, $4) RETURNING *`, [data.title, data.content, data.category || 'Sports Today', data.status || 'draft']); const r = result[0]; return { id: r.id, title: r.title, content: r.content, category: r.category, status: r.status, createdAt: r.created_at }; },
+    async updateSportsNews(id: string, data: Partial<Omit<SportsNews, 'id' | 'createdAt'>>): Promise<void> { const fields: string[] = []; const values: any[] = []; let idx = 1; if (data.title !== undefined) { fields.push(`title = $${idx++}`); values.push(data.title); } if (data.content !== undefined) { fields.push(`content = $${idx++}`); values.push(data.content); } if (data.category !== undefined) { fields.push(`category = $${idx++}`); values.push(data.category); } if (data.status !== undefined) { fields.push(`status = $${idx++}`); values.push(data.status); } if (fields.length === 0) return; values.push(id); await executeSql(`UPDATE sports_news SET ${fields.join(', ')} WHERE id = $${idx}`, values); },
+    async deleteSportsNews(id: string): Promise<void> { await executeSql(`DELETE FROM sports_news WHERE id = $1`, [id]); }
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -126,14 +126,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (method === 'GET') return res.json(await db.getTags());
         } else if (path.startsWith('/archive')) {
             if (method === 'GET' && pathArray[1] === 'dates') return res.json(await db.getArchiveDates());
-        } else if (path.startsWith('/transfer-news')) {
+        } else if (path.startsWith('/sports-news')) {
             if (method === 'GET') {
-                if (pathArray[1] === 'published') return res.json(await db.getPublishedTransferNews());
-                return res.json(await db.getTransferNews());
+                if (pathArray[1] === 'published') return res.json(await db.getPublishedSportsNews());
+                return res.json(await db.getSportsNews());
             }
-            if (method === 'POST') return res.json(await db.createTransferNews(req.body));
-            if (method === 'PUT' && pathArray.length > 1) { await db.updateTransferNews(pathArray[1], req.body); return res.json({ success: true }); }
-            if (method === 'DELETE' && pathArray.length > 1) { await db.deleteTransferNews(pathArray[1]); return res.json({ success: true }); }
+            if (method === 'POST') return res.json(await db.createSportsNews(req.body));
+            if (method === 'PUT' && pathArray.length > 1) { await db.updateSportsNews(pathArray[1], req.body); return res.json({ success: true }); }
+            if (method === 'DELETE' && pathArray.length > 1) { await db.deleteSportsNews(pathArray[1]); return res.json({ success: true }); }
         }
         res.status(404).json({ error: 'Not found' });
     } catch (err) {
