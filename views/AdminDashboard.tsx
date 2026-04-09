@@ -200,13 +200,18 @@ export const AdminDashboard = () => {
       }
     }
 
-    if (currentArticle.id) {
-      await api.updateArticle(currentArticle.id, currentArticle);
-    } else {
-      await api.createArticle(currentArticle);
+    try {
+      if (currentArticle.id) {
+        await api.updateArticle(currentArticle.id, currentArticle);
+      } else {
+        await api.createArticle(currentArticle);
+      }
+      setIsEditing(false);
+      loadData();
+    } catch (error) {
+      console.error("Failed to save article:", error);
+      alert("Failed to save article. If you pasted a very large image, try reducing its size or uploading it elsewhere then linking it, as it may exceed server upload limits.");
     }
-    setIsEditing(false);
-    loadData();
   };
 
   const generateSlug = (text: string) => {
