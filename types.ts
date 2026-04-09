@@ -70,7 +70,7 @@ export interface SportsNews {
   title: string;
   content: string;
   imageUrl?: string;
-  category: 'Transfer News' | 'Sports Today';
+  category: 'Transfer News' | 'Sports Today' | 'General';
   status: 'draft' | 'published';
   createdAt: string;
 }

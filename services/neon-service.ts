@@ -62,7 +62,7 @@ const mapSportsNews = (row: any) => ({
   title: row.title,
   content: row.content,
   imageUrl: row.image_url,
-  category: row.category as 'Transfer News' | 'Sports Today',
+  category: row.category as 'Transfer News' | 'Sports Today' | 'General',
   status: row.status as 'draft' | 'published',
   createdAt: row.created_at,
 });
