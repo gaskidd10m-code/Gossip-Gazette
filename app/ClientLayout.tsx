@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Layout } from '../components/Layout';
 import { Category } from '../types';
 import { api } from '../services/api';
@@ -13,6 +14,8 @@ export default function ClientLayout({
   initialCategories?: Category[] 
 }) {
   const [categories, setCategories] = useState<Category[]>(initialCategories);
+
+  const pathname = usePathname();
 
   useEffect(() => {
     // Background refresh for freshness
@@ -31,6 +34,11 @@ export default function ClientLayout({
       loadData();
     }
   }, []);
+
+  // Hide the global website Layout on the admin and login routes
+  if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/login'))) {
+    return <>{children}</>;
+  }
 
   return <Layout categories={categories}>{children}</Layout>;
 }

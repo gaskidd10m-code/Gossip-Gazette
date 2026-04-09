@@ -67,12 +67,12 @@ export default async function SportsNewsPage() {
                     </time>
                   </div>
                   
-                  <h2 className="text-2xl font-serif font-black text-gray-900 leading-snug mb-6 group-hover:text-red-700 transition-colors">
+                  <h2 className="text-lg md:text-xl font-serif font-black text-gray-900 leading-snug mb-4 group-hover:text-red-700 transition-colors">
                     {item.title}
                   </h2>
                   
                   <div 
-                    className="prose prose-sm font-sans text-gray-600 prose-p:leading-relaxed prose-a:text-red-700 hover:prose-a:underline prose-headings:font-black prose-img:hidden"
+                    className="prose prose-sm xl:prose-xs text-xs md:text-sm text-gray-600 prose-p:text-xs md:prose-p:text-sm prose-p:leading-relaxed prose-a:text-red-700 hover:prose-a:underline prose-headings:font-black prose-img:hidden"
                     dangerouslySetInnerHTML={{ __html: item.content }}
                   />
                 </div>
