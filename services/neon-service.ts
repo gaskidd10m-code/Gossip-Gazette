@@ -57,10 +57,11 @@ const mapAuthor = (row: any) => ({
   expertise: row.expertise || [],
 });
 
-const mapTransferNews = (row: any) => ({
+const mapSportsNews = (row: any) => ({
   id: row.id,
   title: row.title,
   content: row.content,
+  category: row.category as 'Transfer News' | 'Sports Today',
   status: row.status as 'draft' | 'published',
   createdAt: row.created_at,
 });
@@ -230,36 +231,37 @@ export const neonService = {
     return rows.map(mapArticle);
   },
 
-  // Transfer News
-  getTransferNews: async () => {
-    const rows = await executeSql(`SELECT * FROM transfer_news ORDER BY created_at DESC`);
-    return rows.map(mapTransferNews);
+  // Sports News
+  getSportsNews: async () => {
+    const rows = await executeSql(`SELECT * FROM sports_news ORDER BY created_at DESC`);
+    return rows.map(mapSportsNews);
   },
-  getPublishedTransferNews: async () => {
+  getPublishedSportsNews: async () => {
     const rows = await executeSql(
-      `SELECT * FROM transfer_news WHERE status = 'published' ORDER BY created_at DESC`
+      `SELECT * FROM sports_news WHERE status = 'published' ORDER BY created_at DESC`
     );
-    return rows.map(mapTransferNews);
+    return rows.map(mapSportsNews);
   },
-  createTransferNews: async (data: { title: string; content: string; status?: string }) => {
+  createSportsNews: async (data: { title: string; content: string; category?: string; status?: string }) => {
     const rows = await executeSql(
-      `INSERT INTO transfer_news (title, content, status) VALUES ($1,$2,$3) RETURNING *`,
-      [data.title, data.content, data.status || 'draft']
+      `INSERT INTO sports_news (title, content, category, status) VALUES ($1,$2,$3,$4) RETURNING *`,
+      [data.title, data.content, data.category || 'Sports Today', data.status || 'draft']
     );
-    return mapTransferNews(rows[0]);
+    return mapSportsNews(rows[0]);
   },
-  updateTransferNews: async (id: string, data: Partial<{ title: string; content: string; status: string }>) => {
+  updateSportsNews: async (id: string, data: Partial<{ title: string; content: string; category: string; status: string }>) => {
     const fields: string[] = [];
     const values: any[] = [];
     let idx = 1;
     if (data.title !== undefined) { fields.push(`title = $${idx++}`); values.push(data.title); }
     if (data.content !== undefined) { fields.push(`content = $${idx++}`); values.push(data.content); }
+    if (data.category !== undefined) { fields.push(`category = $${idx++}`); values.push(data.category); }
     if (data.status !== undefined) { fields.push(`status = $${idx++}`); values.push(data.status); }
     if (!fields.length) return;
     values.push(id);
-    await executeSql(`UPDATE transfer_news SET ${fields.join(', ')} WHERE id = $${idx}`, values);
+    await executeSql(`UPDATE sports_news SET ${fields.join(', ')} WHERE id = $${idx}`, values);
   },
-  deleteTransferNews: async (id: string) => {
-    await executeSql(`DELETE FROM transfer_news WHERE id = $1`, [id]);
+  deleteSportsNews: async (id: string) => {
+    await executeSql(`DELETE FROM sports_news WHERE id = $1`, [id]);
   },
 };

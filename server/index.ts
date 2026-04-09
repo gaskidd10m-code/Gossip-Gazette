@@ -214,51 +214,51 @@ app.get('/api/archive/dates', async (_req, res) => {
     }
 });
 
-// ── TRANSFER NEWS ─────────────────────────────────────────────
-app.get('/api/transfer-news', async (_req, res) => {
+// ── SPORTS NEWS ───────────────────────────────────────────────
+app.get('/api/sports-news', async (_req, res) => {
     try {
-        res.json(await neonService.getTransferNews());
+        res.json(await neonService.getSportsNews());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Failed to fetch transfer news' });
+        res.status(500).json({ error: 'Failed to fetch sports news' });
     }
 });
 
-app.get('/api/transfer-news/published', async (_req, res) => {
+app.get('/api/sports-news/published', async (_req, res) => {
     try {
-        res.json(await neonService.getPublishedTransferNews());
+        res.json(await neonService.getPublishedSportsNews());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Failed to fetch published transfer news' });
+        res.status(500).json({ error: 'Failed to fetch published sports news' });
     }
 });
 
-app.post('/api/transfer-news', async (req, res) => {
+app.post('/api/sports-news', async (req, res) => {
     try {
-        res.json(await neonService.createTransferNews(req.body));
+        res.json(await neonService.createSportsNews(req.body));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Failed to create transfer news' });
+        res.status(500).json({ error: 'Failed to create sports news' });
     }
 });
 
-app.put('/api/transfer-news/:id', async (req, res) => {
+app.put('/api/sports-news/:id', async (req, res) => {
     try {
-        await neonService.updateTransferNews(req.params.id, req.body);
+        await neonService.updateSportsNews(req.params.id, req.body);
         res.json({ success: true });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Failed to update transfer news' });
+        res.status(500).json({ error: 'Failed to update sports news' });
     }
 });
 
-app.delete('/api/transfer-news/:id', async (req, res) => {
+app.delete('/api/sports-news/:id', async (req, res) => {
     try {
-        await neonService.deleteTransferNews(req.params.id);
+        await neonService.deleteSportsNews(req.params.id);
         res.json({ success: true });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Failed to delete transfer news' });
+        res.status(500).json({ error: 'Failed to delete sports news' });
     }
 });
 
