@@ -102,39 +102,47 @@ const SectionSports = ({ articles }: { articles: Article[] }) => (
   </section>
 );
 
-const Sidebar = () => (
-  <aside className="space-y-10 sticky top-32">
-    <div className="bg-gray-50 p-6 border-t-4 border-black shadow-sm">
-      <h4 className="font-bold uppercase text-xs tracking-widest mb-6 text-gray-400">Trending Now</h4>
-      <ol className="list-decimal list-inside space-y-4 font-serif text-lg">
-        <li className="pl-2">
-          <span className="font-bold hover:text-red-700 transition-colors leading-tight cursor-pointer">
-            The 10 richest people in Tech
-          </span>
-        </li>
-        <li className="pl-2">
-          <span className="font-bold hover:text-red-700 transition-colors leading-tight cursor-pointer">
-            Why everyone is moving to Nebraska
-          </span>
-        </li>
-        <li className="pl-2">
-          <span className="font-bold hover:text-red-700 transition-colors leading-tight cursor-pointer">
-            New diet trends: Eating air?
-          </span>
-        </li>
-        <li className="pl-2">
-          <span className="font-bold hover:text-red-700 transition-colors leading-tight cursor-pointer">
-            Election results explained
-          </span>
-        </li>
-      </ol>
+const Sidebar = ({ sportsNews }: { sportsNews: import('../types').SportsNews[] }) => (
+  <aside className="space-y-8 sticky top-32">
+    <div className="bg-black text-white p-6 border-t-4 border-red-600 shadow-xl rounded-sm">
+      <h4 className="font-bold uppercase text-[10px] tracking-widest mb-6 text-red-600 flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
+        Latest Sports Hub
+      </h4>
+      <div className="space-y-6">
+        {sportsNews.slice(0, 5).map((item, idx) => (
+          <div key={item.id} className="group cursor-pointer">
+            <div className="flex gap-4">
+              <span className="text-gray-700 font-serif font-black text-2xl group-hover:text-red-600 transition-colors">{idx + 1}</span>
+              <div className="flex-1">
+                <Link href="/sports">
+                  <h5 className="font-serif font-bold text-sm leading-tight group-hover:underline decoration-red-600 underline-offset-4 decoration-2">{item.title}</h5>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-gray-500">{item.category}</span>
+                    <span className="text-gray-800 text-[10px]">•</span>
+                    <span className="text-[10px] font-bold text-gray-600">{new Date(item.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <Link href="/sports" className="block text-center mt-8 text-[10px] font-black uppercase tracking-widest border border-gray-800 py-3 hover:bg-white hover:text-black transition-all">
+        View All Sports News →
+      </Link>
     </div>
 
-    <div className="border border-gray-200 p-8 text-center bg-white shadow-sm">
-      <h4 className="font-bold font-serif text-2xl mb-2">The Daily Brief</h4>
-      <p className="text-sm text-gray-500 mb-6">Essential news, expertly curated. Sign up for our morning newsletter.</p>
-      <input className="w-full border border-gray-300 bg-gray-50 p-3 text-sm mb-3 outline-none focus:border-black transition-colors" placeholder="Your email address" />
-      <button className="w-full bg-black text-white font-bold text-xs py-3 uppercase tracking-widest hover:bg-red-700 transition-colors">Subscribe</button>
+    <div className="border border-gray-200 p-8 text-center bg-gray-50 shadow-sm">
+      <h4 className="font-bold font-serif text-xl mb-2">Ghana News Roundup</h4>
+      <p className="text-xs text-gray-500 mb-6 uppercase tracking-widest font-bold">Updated {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+      <div className="space-y-4 text-left">
+          {sportsNews.filter(n => n.category === 'Sports Today').slice(0, 2).map(item => (
+              <div key={item.id} className="border-l-2 border-black pl-4 py-1">
+                  <p className="text-xs font-bold leading-snug">{item.title}</p>
+              </div>
+          ))}
+      </div>
     </div>
   </aside>
 );
@@ -252,28 +260,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
         {/* Sidebar Column */}
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-24">
-            <Sidebar />
-            
-            {/* Added Sports News Hub Card in Sidebar */}
-            <div className="mt-8 bg-black text-white p-6 rounded-sm">
-                <h4 className="text-red-600 font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
-                    Sports Today
-                </h4>
-                <div className="space-y-4">
-                    {sportsNews.slice(0, 3).map(item => (
-                        <div key={item.id} className="border-b border-gray-800 pb-4 last:border-0 last:pb-0">
-                            <Link href="/sports" className="hover:text-red-500 transition-colors">
-                                <h5 className="font-serif font-bold text-sm leading-tight mb-1 line-clamp-2">{item.title}</h5>
-                                <span className="text-[10px] text-gray-500 uppercase font-black">{item.category}</span>
-                            </Link>
-                        </div>
-                    ))}
-                </div>
-                <Link href="/sports" className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest border border-gray-800 py-2 hover:bg-white hover:text-black transition-all">
-                    Full Sports Hub
-                </Link>
-            </div>
+            <Sidebar sportsNews={sportsNews} />
           </div>
         </div>
       </div>
