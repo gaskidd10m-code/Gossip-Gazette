@@ -74,7 +74,7 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                <div className={`${isSportsPage && transferArticles.length > 0 ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
+                <div className={`${isSportsPage && transferArticles.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12'}`}>
                     {isSportsPage && regularArticles.length > 0 && transferArticles.length > 0 && (
                         <div className="flex items-center gap-4 mb-8 border-b pb-4">
                             <h3 className="text-xl font-black uppercase tracking-widest text-gray-400">Latest Sports Reports</h3>
@@ -102,32 +102,34 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
                 </div>
 
                 {isSportsPage && transferArticles.length > 0 && (
-                    <div className="lg:col-span-4">
+                    <div className="lg:col-span-5">
                         <div className="lg:sticky lg:top-28">
-                            <div className="bg-red-50/50 p-6 rounded-sm border border-red-100 shadow-sm">
-                                <div className="flex items-center gap-3 mb-4 border-b border-red-200 pb-4">
-                                    <span className="text-2xl animate-pulse">⚡</span>
-                                    <h3 className="text-xl font-black uppercase tracking-tight text-red-700">Transfer News</h3>
+                            <div className="bg-[#0a0a0a] text-white p-8 md:p-10 border-l-4 border-red-700 shadow-2xl">
+                                <div className="flex items-center justify-between mb-8 border-b border-gray-800 pb-6">
+                                    <h3 className="text-2xl font-black uppercase tracking-widest text-red-600 flex items-center gap-3">
+                                        <span className="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
+                                        Sports Today
+                                    </h3>
                                 </div>
                                 <div className="space-y-6">
                                     {transferArticles.map(a => {
                                         const cleanImageUrl = a.coverImage?.split('#')[0] || a.coverImage;
                                         return (
-                                            <div key={a.id} className="block border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                                                <div className="flex gap-4 items-start mb-3">
+                                            <div key={a.id} className="block border-b border-gray-900 pb-8 last:border-0 last:pb-0">
+                                                <div className="flex gap-6 items-start mb-4">
                                                     {cleanImageUrl && (
-                                                        <div className="w-16 h-16 shrink-0 bg-gray-100 overflow-hidden rounded-sm">
-                                                            <img src={cleanImageUrl} className="w-full h-full object-cover" />
+                                                        <div className="w-24 h-24 shrink-0 bg-gray-900 overflow-hidden rounded-sm shadow-lg">
+                                                            <img src={cleanImageUrl} className="w-full h-full object-cover opacity-90" />
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <h4 className="font-serif font-bold text-sm leading-tight text-gray-900">{a.title}</h4>
-                                                        <span className="text-[9px] uppercase font-black tracking-widest text-red-700 mt-1 block tracking-widest">Confirmed update</span>
+                                                        <h4 className="font-serif font-black text-lg md:text-xl leading-snug text-white mb-2">{a.title}</h4>
+                                                        <span className="text-[10px] uppercase font-black tracking-[0.2em] text-red-700 mt-2 block italic">Official Update</span>
                                                     </div>
                                                 </div>
                                                 <div 
                                                     dangerouslySetInnerHTML={{ __html: a.content }} 
-                                                    className="text-xs text-gray-700 font-serif leading-relaxed line-clamp-5"
+                                                    className="text-base text-gray-400 font-serif leading-relaxed line-clamp-6 opacity-80"
                                                 />
                                             </div>
                                         );

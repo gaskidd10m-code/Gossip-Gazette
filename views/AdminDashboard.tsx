@@ -188,9 +188,9 @@ export const AdminDashboard = () => {
     const defaultAuthor = authors.find(a => a.name.includes('Sarah')) || authors[0];
 
     setCurrentArticle({
-      title: '', slug: '', excerpt: 'Transfer News update.', content: '', coverImage: 'https://picsum.photos/800/600',
-      categoryName: transferCat?.name || 'Transfer News', categoryId: String(transferCat?.id || ''),
-      tags: ['transfer'], status: 'draft', publishedAt: new Date().toISOString(), source: '',
+      title: '', slug: '', excerpt: 'Latest update from the sports world.', content: '', coverImage: 'https://picsum.photos/800/600',
+      categoryName: transferCat?.name || 'Sports News', categoryId: String(transferCat?.id || ''),
+      tags: ['transfer', 'sports-today'], status: 'draft', publishedAt: new Date().toISOString(), source: '',
       // @ts-ignore - Including fields for backend
       authorId: defaultAuthor?.id || 'sarah-mitchell',
       authorName: defaultAuthor?.name || 'Sarah Mitchell'
@@ -336,7 +336,7 @@ export const AdminDashboard = () => {
             Sign Out
           </button>
           <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-5 py-2.5 font-bold text-sm uppercase hover:bg-red-800 transition-colors shadow-lg rounded-sm">
-            ⚡ Transfer News
+            ⚡ Sports Today
           </button>
           <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
             + Create Article
@@ -639,9 +639,9 @@ export const AdminDashboard = () => {
             <div className="bg-red-50 p-6 border-l-4 border-red-700 text-red-900 shadow-sm rounded-sm mb-6 flex items-start gap-4">
               <span className="text-3xl mt-1">⚡</span>
               <div>
-                <h3 className="text-lg font-black uppercase tracking-tight">Short News Mode Active</h3>
+                <h3 className="text-lg font-black uppercase tracking-tight">Sports Today Mode Active</h3>
                 <p className="text-sm font-medium opacity-80 mt-1">
-                  Optimized for Transfer News. Only <strong>Headline</strong>, <strong>Content</strong>, and <strong>Image</strong> are required. 
+                  Optimized for fast-paced short news. Only <strong>Headline</strong>, <strong>Content</strong>, and <strong>Image</strong> are required. 
                   Word count limits are disabled and "Read More" will be hidden on the site.
                 </p>
               </div>

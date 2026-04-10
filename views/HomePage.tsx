@@ -77,31 +77,40 @@ const SectionSports = ({ articles }: { articles: Article[] }) => (
   </section>
 );
 
-const Sidebar = ({ transferNews }: { transferNews: Article[] }) => (
-  <aside className="space-y-10">
-    <div className="bg-black text-white p-8 border-t-8 border-red-700 shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 p-2 transform rotate-12 opacity-10 scale-150 pointer-events-none">
-          <span className="text-8xl">⚽</span>
+const Sidebar = ({ articles }: { articles: Article[] }) => (
+  <aside className="space-y-12">
+    <div className="bg-[#0a0a0a] text-white p-8 md:p-10 border-l-4 border-red-700 shadow-2xl relative overflow-hidden group">
+      <div className="absolute -top-10 -right-10 opacity-[0.03] scale-150 transform rotate-12 transition-transform duration-1000 group-hover:rotate-45">
+          <span className="text-[200px] font-black">SPORTS</span>
       </div>
-      <h4 className="font-bold uppercase text-xs tracking-[0.3em] mb-8 text-red-600 flex items-center gap-3">
-        <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
-        Direct Hub
-      </h4>
-      <div className="space-y-8 relative z-10">
-        {transferNews.slice(0, 4).map((item, idx) => (
-          <div key={item.id} className="group/item border-b border-gray-800/50 pb-6 last:border-0 last:pb-0">
-            <div className="flex items-start gap-4">
-              <span className="text-gray-800 font-serif font-black text-3xl leading-none">{idx + 1}</span>
-              <div className="flex-1">
-                  <h5 className="font-serif font-bold text-sm leading-tight text-white mb-3">{item.title}</h5>
-                  <div 
-                    dangerouslySetInnerHTML={{ __html: item.content }} 
-                    className="text-xs text-gray-400 font-serif leading-relaxed prose prose-invert prose-xs line-clamp-4"
-                  />
-                  <div className="flex items-center gap-2 mt-3 overflow-hidden">
-                    <span className="bg-red-700 text-white text-[9px] font-black px-1.5 py-0.5 uppercase tracking-tighter shrink-0">{item.categoryName}</span>
-                    <span className="text-gray-700 text-[9px] font-bold uppercase tracking-widest">{new Date(item.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                  </div>
+      
+      <div className="flex items-center justify-between mb-10 border-b border-gray-800 pb-6">
+        <h4 className="font-black uppercase text-sm tracking-[0.4em] text-red-600 flex items-center gap-3">
+          <span className="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
+          Sports Today
+        </h4>
+        <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase italic">Breaking Updates</span>
+      </div>
+
+      <div className="space-y-10 relative z-10">
+        {articles.slice(0, 5).map((item, idx) => (
+          <div key={item.id} className="relative pl-12 group/item border-b border-gray-900 last:border-0 pb-10 last:pb-0">
+            <span className="absolute left-0 top-0 text-7xl font-sans font-black text-white/5 group-hover/item:text-red-700/20 transition-all duration-500 leading-none select-none">
+              {idx + 1}
+            </span>
+            <div className="relative">
+              <h5 className="font-serif font-black text-lg md:text-xl leading-snug text-white mb-4 group-hover/item:text-red-500 transition-colors duration-300">
+                {item.title}
+              </h5>
+              <div 
+                dangerouslySetInnerHTML={{ __html: item.content }} 
+                className="text-sm text-gray-400 font-serif leading-relaxed line-clamp-4 prose prose-invert prose-sm opacity-80 group-hover/item:opacity-100 transition-opacity"
+              />
+              <div className="flex items-center gap-4 mt-6">
+                <span className="h-px bg-red-700 w-8"></span>
+                <span className="text-gray-600 text-[10px] font-black uppercase tracking-[0.2em]">
+                  {new Date(item.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                </span>
               </div>
             </div>
           </div>
@@ -167,7 +176,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
         const allArticles = await api.getArticles();
         if (allArticles.length > 0) {
             setArticles(allArticles);
-            setTransferNews(allArticles.filter(a => (a.categoryName.toLowerCase() === 'transfer news' || (a.tags && a.tags.some(t => t.toLowerCase() === 'transfer'))) && a.status === 'published').slice(0, 10));
+            setTransferNews(allArticles.filter(a => (a.categoryName.toLowerCase().includes('transfer') || (a.tags && a.tags.some(t => t.toLowerCase() === 'transfer'))) && a.status === 'published').slice(0, 10));
         }
       } catch (err) {
         console.error('Failed to load fresh data:', err);
@@ -211,7 +220,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
 
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
-            <Sidebar transferNews={transferNews} />
+            <Sidebar articles={transferNews} />
           </div>
         </div>
       </div>

@@ -41,6 +41,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
 
   const isAuthenticated = typeof window !== 'undefined' ? api.checkAuth() : false;
 
+  const categoryOrder = ['World News', 'Sports News', 'Technology', 'Entertainment and Trends'];
+  const sortedCategories = [...categories].sort((a, b) => {
+    const indexA = categoryOrder.indexOf(a.name);
+    const indexB = categoryOrder.indexOf(b.name);
+    if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name);
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+
   return (
     <div className="w-full flex flex-col font-sans text-gray-900 bg-white">
 
@@ -64,7 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           <nav className="hidden md:flex items-center gap-8 mx-8 order-2">
             <ul className="flex flex-row font-sans font-bold text-xs tracking-[0.2em] uppercase gap-8">
               <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>Home</Link></li>
-              {categories.map((cat) => (
+              {sortedCategories.map((cat) => (
                 <li key={cat.id}>
                   <Link href={`/category/${cat.slug}`} className={`hover:text-red-700 transition-colors ${pathname === `/category/${cat.slug}` ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>{cat.name}</Link>
                 </li>
@@ -107,7 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           <div className="w-full px-4 py-5">
             <ul className="flex flex-row items-center gap-8 font-sans font-black text-[14px] tracking-widest uppercase">
               <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700' : ''}`}>Home</Link></li>
-              {categories.map((cat) => (
+              {sortedCategories.map((cat) => (
                 <li key={cat.id}>
                   <Link href={`/category/${cat.slug}`} className={`hover:text-red-700 transition-colors ${pathname === `/category/${cat.slug}` ? 'text-red-700' : ''}`}>{cat.name}</Link>
                 </li>
