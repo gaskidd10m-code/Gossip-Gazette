@@ -50,9 +50,9 @@ export async function generateMetadata(
       authors: [article.authorName],
       images: [
         {
-          url: article.coverImage.startsWith('http')
-            ? article.coverImage
-            : `${siteUrl}${article.coverImage}`,
+          url: article.coverImage.split('#')[0].startsWith('http')
+            ? article.coverImage.split('#')[0]
+            : `${siteUrl}${article.coverImage.split('#')[0]}`,
           width: 1200,
           height: 630,
           alt: article.title,
@@ -63,7 +63,7 @@ export async function generateMetadata(
       card: 'summary_large_image',
       title: article.title,
       description,
-      images: [article.coverImage.startsWith('http') ? article.coverImage : `${siteUrl}${article.coverImage}`],
+      images: [article.coverImage.split('#')[0].startsWith('http') ? article.coverImage.split('#')[0] : `${siteUrl}${article.coverImage.split('#')[0]}`],
     },
   };
 }
@@ -86,9 +86,9 @@ export default async function ArticleSSRPage(
     headline: article.title,
     description: article.excerpt,
     image: [
-      article.coverImage.startsWith('http')
-        ? article.coverImage
-        : `${siteUrl}${article.coverImage}`,
+      article.coverImage.split('#')[0].startsWith('http')
+        ? article.coverImage.split('#')[0]
+        : `${siteUrl}${article.coverImage.split('#')[0]}`,
     ],
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
@@ -131,9 +131,9 @@ export default async function ArticleSSRPage(
               <figure className="mb-4 md:mb-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={article.coverImage}
+                  src={article.coverImage.split('#')[0]}
                   alt={article.title}
-                  className="w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[700px] object-cover object-top rounded-sm shadow-xl"
+                  className={`w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[700px] object-cover ${article.coverImage.match(/#(object-[a-z-]+)/)?.[1] || 'object-top'} rounded-sm shadow-xl`}
                 />
                 <figcaption className="text-xs text-gray-400 text-left mt-3 italic">
                   <span>Image source: Picsum Photos</span>

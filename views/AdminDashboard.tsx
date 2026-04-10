@@ -221,6 +221,10 @@ export const AdminDashboard = () => {
     } else if (name === 'tags') {
       // Simple comma separated handling
       setCurrentArticle(prev => ({ ...prev, tags: value.split(',').map(t => t.trim()) }));
+    } else if (name === 'coverImage') {
+      const currentPosMatch = currentArticle.coverImage?.match(/#(object-[a-z-]+)/);
+      const currentPos = currentPosMatch ? currentPosMatch[1] : 'object-center';
+      setCurrentArticle(prev => ({ ...prev, coverImage: `${value.split('#')[0]}#${currentPos}` }));
     } else {
       setCurrentArticle(prev => ({ ...prev, [name]: value }));
     }
@@ -230,9 +234,11 @@ export const AdminDashboard = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
+      const currentPosMatch = currentArticle.coverImage?.match(/#(object-[a-z-]+)/);
+      const currentPos = currentPosMatch ? currentPosMatch[1] : 'object-center';
       reader.onloadend = () => {
         const result = reader.result as string;
-        setCurrentArticle(prev => ({ ...prev, coverImage: result }));
+        setCurrentArticle(prev => ({ ...prev, coverImage: `${result.split('#')[0]}#${currentPos}` }));
       };
       reader.readAsDataURL(file);
     }
@@ -672,12 +678,27 @@ export const AdminDashboard = () => {
                 {useImageUpload ? (
                   <input type="file" accept="image/*" onChange={handleImageFileChange} className="w-full text-xs text-gray-500" />
                 ) : (
-                  <input name="coverImage" value={currentArticle.coverImage} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
+                  <input name="coverImage" value={currentArticle.coverImage.split('#')[0]} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
                 )}
 
+                <div className="mt-4 flex flex-col gap-2">
+                   <label className="text-xs font-bold uppercase text-gray-500">Image Focal Position</label>
+                   <select 
+                     value={currentArticle.coverImage.match(/#(object-[a-z-]+)/)?.[1] || 'object-center'}
+                     onChange={(e) => setCurrentArticle(prev => ({ ...prev, coverImage: `${prev.coverImage.split('#')[0]}#${e.target.value}` }))}
+                     className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white"
+                   >
+                     <option value="object-top">Top (Head/Faces)</option>
+                     <option value="object-center">Center (Middle)</option>
+                     <option value="object-bottom">Bottom (Legs/Feet)</option>
+                     <option value="object-left">Left</option>
+                     <option value="object-right">Right</option>
+                   </select>
+                </div>
+
                 {currentArticle.coverImage && (
-                  <div className="mt-2 relative h-32 w-full overflow-hidden rounded-sm border border-gray-200">
-                    <img src={currentArticle.coverImage} alt="Preview" className="w-full h-full object-cover" />
+                  <div className="mt-4 relative h-32 w-full overflow-hidden rounded-sm border border-gray-200">
+                    <img src={currentArticle.coverImage.split('#')[0]} alt="Preview" className={`w-full h-full object-cover ${currentArticle.coverImage.match(/#(object-[a-z-]+)/)?.[1] || 'object-center'}`} />
                   </div>
                 )}
               </div>
