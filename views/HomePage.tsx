@@ -46,7 +46,6 @@ const SectionSports = ({ articles }: { articles: Article[] }) => (
     <div className="w-full">
       <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
         <h3 className="font-sans font-black text-2xl uppercase tracking-widest text-white">Sports Center</h3>
-        <Link href="/category/sports-news" className="text-red-600 font-bold text-xs hover:underline decoration-2 underline-offset-4">ACCESS HUB →</Link>
       </div>
       <div className="flex overflow-x-auto gap-6 pb-6 hide-scrollbar snap-x">
         {articles.map(article => {
@@ -90,8 +89,8 @@ const Sidebar = ({ transferNews }: { transferNews: Article[] }) => (
       </h4>
       <div className="space-y-8 relative z-10">
         {transferNews.slice(0, 4).map((item, idx) => (
-          <div key={item.id} className="group/item">
-            <Link href={`/category/${item.categoryId}`} className="flex items-start gap-4">
+          <div key={item.id} className="group/item border-b border-gray-800/50 pb-6 last:border-0 last:pb-0">
+            <Link href={`/article/${item.slug}`} className="flex items-start gap-4">
               <span className="text-gray-800 font-serif font-black text-3xl group-hover/item:text-red-700 transition-colors leading-none">{idx + 1}</span>
               <div className="flex-1">
                   <h5 className="font-serif font-bold text-sm leading-tight group-hover/item:text-red-500 transition-colors line-clamp-2">{item.title}</h5>
@@ -104,9 +103,7 @@ const Sidebar = ({ transferNews }: { transferNews: Article[] }) => (
           </div>
         ))}
       </div>
-      <Link href="/category/transfer-news" className="block text-center mt-10 text-[10px] font-black uppercase tracking-[0.3em] bg-red-700 py-4 hover:bg-white hover:text-black transition-all transform hover:-translate-y-1 duration-300">
-        Access Sports Hub
-      </Link>
+      </div>
     </div>
 
     <div className="bg-gray-50 p-8 border border-gray-100 rounded-sm">

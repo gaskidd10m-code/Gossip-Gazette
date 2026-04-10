@@ -129,9 +129,6 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
                                         );
                                     })}
                                 </div>
-                                <Link href="#" className="block text-center mt-8 text-[9px] font-black uppercase tracking-[0.2em] bg-red-700 text-white py-3 hover:bg-black transition-all">
-                                    Access Hub
-                                </Link>
                             </div>
                         </div>
                     </div>
