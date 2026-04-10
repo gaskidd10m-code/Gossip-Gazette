@@ -682,9 +682,26 @@ export const AdminDashboard = () => {
 
               <div>
                 <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Category</label>
-                <select name="categoryId" value={String(currentArticle.categoryId || '')} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white">
-                  {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
-                </select>
+                {isShortMode ? (
+                  <div className="bg-red-50 border border-red-200 p-3 text-sm font-black text-red-700 rounded-sm flex items-center justify-between shadow-inner">
+                    <span>⚡ Transfer News</span>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setIsShortMode(false);
+                        const sportsCat = categories.find(c => c.slug.includes('sport'));
+                        setCurrentArticle(prev => ({ ...prev, categoryName: sportsCat?.name || '', categoryId: String(sportsCat?.id || '') }));
+                      }}
+                      className="text-[10px] bg-red-700 text-white px-2 py-1 rounded hover:bg-black transition-colors"
+                    >
+                      Change to Standard
+                    </button>
+                  </div>
+                ) : (
+                  <select name="categoryId" value={String(currentArticle.categoryId || '')} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white">
+                    {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
+                  </select>
+                )}
               </div>
 
               {!isShortMode && (

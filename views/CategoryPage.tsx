@@ -65,21 +65,43 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
                 <div className="h-1 bg-black flex-grow"></div>
             </div>
 
-            {articles.length > 0 ? (
-                <div className="space-y-12">
-                    {articles.map(a => (
+            {category.name.toLowerCase().includes('sport') && articles.some(a => a.categoryName.toLowerCase().includes('transfer')) && (
+                <div className="mb-16">
+                    <div className="flex items-center gap-3 mb-8">
+                        <span className="text-2xl animate-pulse">⚡</span>
+                        <h3 className="text-2xl font-black uppercase tracking-tight text-red-700">Transfer News Hub</h3>
+                        <div className="h-0.5 bg-red-50 flex-grow"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 border-b-2 border-dashed border-gray-100 pb-12">
+                        {articles.filter(a => a.categoryName.toLowerCase().includes('transfer')).map(a => (
+                            <ArticleCard key={a.id} article={a} variant="card" />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="space-y-12 pb-20">
+                {category.name.toLowerCase().includes('sport') && articles.some(a => !a.categoryName.toLowerCase().includes('transfer')) && (
+                    <div className="flex items-center gap-4 mb-8 border-b pb-4">
+                        <h3 className="text-xl font-black uppercase tracking-widest text-gray-400">Latest Sports Reports</h3>
+                        <div className="h-px bg-gray-100 flex-grow"></div>
+                    </div>
+                )}
+                
+                {articles.filter(a => category.name.toLowerCase().includes('sport') ? !a.categoryName.toLowerCase().includes('transfer') : true).length > 0 ? (
+                    articles.filter(a => category.name.toLowerCase().includes('sport') ? !a.categoryName.toLowerCase().includes('transfer') : true).map(a => (
                         <ArticleCard
                             key={a.id}
                             article={a}
                             variant="list"
                         />
-                    ))}
-                </div>
-            ) : (
-                <div className="py-12 text-center text-gray-500 italic">
-                    No articles found in this category.
-                </div>
-            )}
+                    ))
+                ) : (
+                    <div className="py-12 text-center text-gray-500 italic">
+                        No articles found in this category.
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
