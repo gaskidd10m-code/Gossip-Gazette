@@ -48,6 +48,8 @@ export const AdminDashboard = () => {
 
   // Image Upload State
   const [useImageUpload, setUseImageUpload] = useState(false);
+  const [imagePosX, setImagePosX] = useState(50);
+  const [imagePosY, setImagePosY] = useState(50);
 
   // Quill Refs
   const quillRef = useRef<HTMLDivElement>(null);
@@ -149,7 +151,11 @@ export const AdminDashboard = () => {
   };
 
   const handleEdit = (article: Article) => {
-    setCurrentArticle(article);
+    // Parse position from coverImage hash if present
+    const posMatch = article.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
+    setImagePosX(posMatch ? Number(posMatch[1]) : 50);
+    setImagePosY(posMatch ? Number(posMatch[2]) : 50);
+    setCurrentArticle({ ...article, coverImage: article.coverImage?.split('#')[0] || article.coverImage });
     setUseImageUpload(false);
     setIsEditing(true);
   };
@@ -160,17 +166,21 @@ export const AdminDashboard = () => {
       categoryName: categories[0]?.name || '', categoryId: String(categories[0]?.id || ''),
       tags: [], status: 'draft', publishedAt: new Date().toISOString(), source: ''
     });
+    setImagePosX(50);
+    setImagePosY(50);
     setUseImageUpload(false);
     setIsEditing(true);
   };
 
   const handleCreateTransferNews = () => {
-    const transferCat = categories.find(c => c.slug === 'transfer-news');
+    const transferCat = categories.find(c => c.name.toLowerCase().includes('transfer'));
     setCurrentArticle({
       title: '', slug: '', excerpt: 'Transfer News update.', content: '', coverImage: 'https://picsum.photos/800/600',
       categoryName: transferCat?.name || 'Transfer News', categoryId: String(transferCat?.id || ''),
       tags: ['transfer'], status: 'draft', publishedAt: new Date().toISOString(), source: ''
     });
+    setImagePosX(50);
+    setImagePosY(50);
     setUseImageUpload(false);
     setIsEditing(true);
   };
@@ -195,10 +205,15 @@ export const AdminDashboard = () => {
     }
 
     try {
+      // Combine image position into coverImage URL before saving
+      const articleToSave = {
+        ...currentArticle,
+        coverImage: `${currentArticle.coverImage.split('#')[0]}#pos=${imagePosX}%_${imagePosY}%`
+      };
       if (currentArticle.id) {
-        await api.updateArticle(currentArticle.id, currentArticle);
+        await api.updateArticle(currentArticle.id, articleToSave);
       } else {
-        await api.createArticle(currentArticle);
+        await api.createArticle(articleToSave);
       }
       setIsEditing(false);
       loadData();
@@ -233,9 +248,7 @@ export const AdminDashboard = () => {
       // Simple comma separated handling
       setCurrentArticle(prev => ({ ...prev, tags: value.split(',').map(t => t.trim()) }));
     } else if (name === 'coverImage') {
-      const currentPosMatch = currentArticle.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
-      const currentPos = currentPosMatch ? `pos=${currentPosMatch[1]}%_${currentPosMatch[2]}%` : 'pos=50%_50%';
-      setCurrentArticle(prev => ({ ...prev, coverImage: `${value.split('#')[0]}#${currentPos}` }));
+      setCurrentArticle(prev => ({ ...prev, coverImage: value }));
     } else {
       setCurrentArticle(prev => ({ ...prev, [name]: value }));
     }
@@ -245,11 +258,9 @@ export const AdminDashboard = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      const currentPosMatch = currentArticle.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
-      const currentPos = currentPosMatch ? `pos=${currentPosMatch[1]}%_${currentPosMatch[2]}%` : 'pos=50%_50%';
       reader.onloadend = () => {
         const result = reader.result as string;
-        setCurrentArticle(prev => ({ ...prev, coverImage: `${result.split('#')[0]}#${currentPos}` }));
+        setCurrentArticle(prev => ({ ...prev, coverImage: result }));
       };
       reader.readAsDataURL(file);
     }
@@ -415,14 +426,12 @@ export const AdminDashboard = () => {
                 )}
                 {(() => {
                   const selectedCat = categories.find(c => String(c.id) === selectedCategory);
-                  if (selectedCat && selectedCat.slug === 'sports-news') {
-                    return (
-                      <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-5 py-2 font-bold text-xs uppercase hover:bg-black transition-colors shadow-md rounded-sm">
-                        ⚡ Add Transfer News
-                      </button>
-                    );
-                  }
-                  return null;
+                  const isSportsCategory = selectedCat && selectedCat.name.toLowerCase().includes('sport');
+                  return isSportsCategory ? (
+                    <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-5 py-2 font-bold text-xs uppercase hover:bg-black transition-colors shadow-md rounded-sm">
+                      ⚡ Add Transfer News
+                    </button>
+                  ) : null;
                 })()}
               </div>
 
@@ -700,48 +709,36 @@ export const AdminDashboard = () => {
                 {useImageUpload ? (
                   <input type="file" accept="image/*" onChange={handleImageFileChange} className="w-full text-xs text-gray-500" />
                 ) : (
-                  <input name="coverImage" value={currentArticle.coverImage.split('#')[0]} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
+                  <input name="coverImage" value={currentArticle.coverImage} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
                 )}
 
                 <div className="mt-4 flex flex-col gap-4 bg-gray-50 border border-gray-200 p-4 rounded-sm">
-                   <label className="text-xs font-bold uppercase text-gray-500">Advanced Image Focal Position</label>
+                   <label className="text-xs font-bold uppercase text-gray-500">Image Focal Position</label>
                    
                    <div className="space-y-4">
                      <div>
                        <div className="flex justify-between text-xs text-gray-500 mb-1">
-                         <span>Horizontal (X)</span>
-                         <span>{currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}%</span>
+                         <span>← Left / Right →</span>
+                         <span>{imagePosX}%</span>
                        </div>
                        <input 
                          type="range" 
                          min="0" max="100" 
-                         value={currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}
-                         onChange={(e) => {
-                           const newX = e.target.value;
-                           setCurrentArticle(prev => {
-                             const prevY = prev.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50';
-                             return { ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${newX}%_${prevY}%` };
-                           });
-                         }}
+                         value={imagePosX}
+                         onChange={(e) => setImagePosX(Number(e.target.value))}
                          className="w-full accent-black"
                        />
                      </div>
                      <div>
                        <div className="flex justify-between text-xs text-gray-500 mb-1">
-                         <span>Vertical (Y)</span>
-                         <span>{currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}%</span>
+                         <span>↑ Top / Bottom ↓</span>
+                         <span>{imagePosY}%</span>
                        </div>
                        <input 
                          type="range" 
                          min="0" max="100" 
-                         value={currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}
-                         onChange={(e) => {
-                           const newY = e.target.value;
-                           setCurrentArticle(prev => {
-                             const prevX = prev.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50';
-                             return { ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${prevX}%_${newY}%` };
-                           });
-                         }}
+                         value={imagePosY}
+                         onChange={(e) => setImagePosY(Number(e.target.value))}
                          className="w-full accent-black"
                        />
                      </div>
@@ -751,12 +748,10 @@ export const AdminDashboard = () => {
                 {currentArticle.coverImage && (
                   <div className="mt-4 relative h-48 w-full overflow-hidden rounded-sm border border-gray-300">
                     <img 
-                      src={currentArticle.coverImage.split('#')[0]} 
+                      src={currentArticle.coverImage} 
                       alt="Preview" 
                       className="w-full h-full object-cover"
-                      style={{
-                        objectPosition: `${currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}% ${currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}%`
-                      }}
+                      style={{ objectPosition: `${imagePosX}% ${imagePosY}%` }}
                     />
                   </div>
                 )}

@@ -23,8 +23,8 @@ async function getData(slug: string) {
      ORDER BY published_at DESC`;
   let params = [category.id];
 
-  if (slug === 'sports-news') {
-    const transferCat = await db.query<Category>('SELECT id FROM categories WHERE slug = $1', ['transfer-news']);
+  if (slug.includes('sport')) {
+    const transferCat = await db.query<Category>("SELECT id FROM categories WHERE LOWER(name) LIKE '%transfer%'", []);
     if (transferCat.length > 0) {
       queryStr = `SELECT 
         id, title, slug, excerpt, content, cover_image AS "coverImage",
