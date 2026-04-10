@@ -25,7 +25,7 @@ export const AdminDashboard = () => {
   const searchParams = useSearchParams();
   const editId = searchParams?.get('editId');
 
-  const [activeTab, setActiveTab] = useState<'articles' | 'categories' | 'comments' | 'settings' | 'sports-news'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'categories' | 'comments' | 'settings'>('articles');
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -44,12 +44,7 @@ export const AdminDashboard = () => {
   const [tickerText, setTickerText] = useState('');
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
-  // Sports News State
-  const [sportsNews, setSportsNews] = useState<SportsNews[]>([]);
-  const [isEditingSportsNews, setIsEditingSportsNews] = useState(false);
-  const [currentSportsNews, setCurrentSportsNews] = useState<SportsNewsFormData & { id?: string }>({
-    title: '', content: '', imageUrl: '', category: 'Sports Today', status: 'draft'
-  });
+  // Removed Sports News State since it is now integrated into standard articles
 
   // Image Upload State
   const [useImageUpload, setUseImageUpload] = useState(false);
@@ -124,14 +119,13 @@ export const AdminDashboard = () => {
   }, [isEditing]);
 
   const loadData = async () => {
-    const [arts, cats, comms, ticker, transfers] = await Promise.all([
-      api.getArticles(), api.getCategories(), api.getAllComments(), api.getSetting('ticker_text'), api.getSportsNews()
+    const [arts, cats, comms, ticker] = await Promise.all([
+      api.getArticles(), api.getCategories(), api.getAllComments(), api.getSetting('ticker_text')
     ]);
     setArticles(arts);
     setCategories(cats);
     setComments(comms);
     setTickerText(ticker);
-    setSportsNews(transfers);
   };
 
   const handleSaveSettings = async (e: React.FormEvent) => {
@@ -279,33 +273,7 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteSportsNews = async (id: string) => {
-    if (window.confirm('Delete this sports news item?')) {
-      await api.deleteSportsNews(id);
-      loadData();
-    }
-  };
 
-  const handleEditSportsNews = (item: SportsNews) => {
-    setCurrentSportsNews(item);
-    setIsEditingSportsNews(true);
-  };
-
-  const handleCreateSportsNews = () => {
-    setCurrentSportsNews({ title: '', content: '', imageUrl: '', category: 'Sports Today', status: 'draft' });
-    setIsEditingSportsNews(true);
-  };
-
-  const handleSubmitSportsNews = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (currentSportsNews.id) {
-      await api.updateSportsNews(currentSportsNews.id, currentSportsNews);
-    } else {
-      await api.createSportsNews(currentSportsNews);
-    }
-    setIsEditingSportsNews(false);
-    loadData();
-  };
 
   return (
     <div className="w-full px-4 md:px-12 py-8">
@@ -318,15 +286,9 @@ export const AdminDashboard = () => {
           <button onClick={handleLogout} className="text-gray-500 font-bold text-sm hover:text-red-600 transition-colors">
             Sign Out
           </button>
-          {activeTab === 'sports-news' ? (
-            <button onClick={handleCreateSportsNews} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
-              + Short News
-            </button>
-          ) : (
-            <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
-              + Create Article
-            </button>
-          )}
+          <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
+            + Create Article
+          </button>
         </div>
       </div>
 
@@ -355,12 +317,6 @@ export const AdminDashboard = () => {
           className={`pb-4 text-sm font-bold uppercase tracking-widest ${activeTab === 'settings' ? 'border-b-2 border-black text-black' : 'text-gray-400 hover:text-black'}`}
         >
           Settings
-        </button>
-        <button
-          onClick={() => setActiveTab('sports-news')}
-          className={`pb-4 text-sm font-bold uppercase tracking-widest ${activeTab === 'sports-news' ? 'border-b-2 border-red-600 text-red-600' : 'text-gray-400 hover:text-black'}`}
-        >
-          ⚡ Short News
         </button>
       </div>
 
@@ -627,6 +583,11 @@ export const AdminDashboard = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {currentArticle.categoryName.toLowerCase() === 'transfer news' && (
+            <div className="bg-yellow-50 p-4 border border-yellow-200 text-yellow-800 text-sm font-bold rounded-sm mb-4">
+              ⚡ Transfer News Mode: Required fields are Headline, Content, and Image. This short form news will display without a 'Read More' button on the feed.
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="md:col-span-8 space-y-4">
               <div>
@@ -651,10 +612,12 @@ export const AdminDashboard = () => {
                 <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 300+ words for AdSense approval.</p>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Excerpt (Summary)</label>
-                <textarea name="excerpt" rows={3} required value={currentArticle.excerpt} onChange={handleChange} className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none" placeholder="Brief summary for list views..."></textarea>
-              </div>
+              {currentArticle.categoryName.toLowerCase() !== 'transfer news' && (
+                <div>
+                  <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Excerpt (Summary)</label>
+                  <textarea name="excerpt" rows={3} required value={currentArticle.excerpt} onChange={handleChange} className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none" placeholder="Brief summary for list views..."></textarea>
+                </div>
+              )}
             </div>
 
             <div className="md:col-span-4 space-y-4 bg-gray-50 p-6 rounded-sm border border-gray-100 h-fit">
@@ -676,23 +639,27 @@ export const AdminDashboard = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Tags (Comma Separated)</label>
-                <input name="tags" value={currentArticle.tags.join(', ')} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="News, Politics, Local..." />
-              </div>
+              {currentArticle.categoryName.toLowerCase() !== 'transfer news' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Tags (Comma Separated)</label>
+                    <input name="tags" value={currentArticle.tags.join(', ')} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="News, Politics, Local..." />
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Slug</label>
-                <div className="flex gap-2">
-                  <input name="slug" required value={currentArticle.slug} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm text-gray-600 bg-gray-100" />
-                  <button type="button" onClick={() => setCurrentArticle(prev => ({ ...prev, slug: generateSlug(prev.title) }))} className="bg-gray-200 text-xs font-bold px-3 rounded hover:bg-gray-300 border border-gray-300">Generate</button>
-                </div>
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Slug</label>
+                    <div className="flex gap-2">
+                      <input name="slug" required value={currentArticle.slug} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm text-gray-600 bg-gray-100" />
+                      <button type="button" onClick={() => setCurrentArticle(prev => ({ ...prev, slug: generateSlug(prev.title) }))} className="bg-gray-200 text-xs font-bold px-3 rounded hover:bg-gray-300 border border-gray-300">Generate</button>
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Source / Copyright</label>
-                <input name="source" value={currentArticle.source || ''} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white placeholder-gray-300" placeholder="e.g. AP News, Reuters, Courtesy of..." />
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Source / Copyright</label>
+                    <input name="source" value={currentArticle.source || ''} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white placeholder-gray-300" placeholder="e.g. AP News, Reuters, Courtesy of..." />
+                  </div>
+                </>
+              )}
 
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-2">
@@ -726,143 +693,7 @@ export const AdminDashboard = () => {
         </form>
       </Modal>
 
-      {/* Short News Tab Content */}
-      {activeTab === 'sports-news' && (
-        <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-500 uppercase font-bold text-xs tracking-wider border-b border-gray-200">
-                <tr>
-                  <th className="p-5">Title</th>
-                  <th className="p-5">Status</th>
-                  <th className="p-5">Date</th>
-                  <th className="p-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {sportsNews.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
-                    <td className="p-5">
-                      <p className="font-bold text-gray-900">{item.title}</p>
-                      <p className="text-gray-400 text-xs mt-1 truncate max-w-sm">{item.content.replace(/<[^>]*>/g, '').substring(0, 100)}</p>
-                    </td>
-                    <td className="p-5">
-                      <span className={`px-3 py-1 text-xs font-bold uppercase rounded-full ${item.status === 'published' ? 'text-green-700 bg-green-100' : 'text-yellow-700 bg-yellow-100'}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="p-5 text-gray-500 text-xs">
-                      {new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="p-5 text-right">
-                      <div className="flex justify-end gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => handleEditSportsNews(item)}
-                          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold text-xs uppercase tracking-wide border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-50 transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSportsNews(item.id)}
-                          className="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded hover:bg-red-50 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {sportsNews.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="p-8 text-center text-gray-400">
-                      No short news yet. Click &quot;+ Short News&quot; to add your first item.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
-      {/* Short News Editor Modal */}
-      <Modal isOpen={isEditingSportsNews} onClose={() => setIsEditingSportsNews(false)}>
-        <div className="flex justify-between items-center mb-6 border-b pb-4">
-          <h2 className="text-2xl font-black uppercase font-serif">
-            {currentSportsNews.id ? 'Edit Short News' : 'New Short News'}
-          </h2>
-          <span className="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-bold uppercase">⚡ Short News</span>
-        </div>
-        <form onSubmit={handleSubmitSportsNews} className="space-y-6">
-          <div>
-            <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Headline</label>
-            <input
-              required
-              value={currentSportsNews.title}
-              onChange={e => setCurrentSportsNews(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full border border-gray-300 p-3 text-lg font-serif font-bold rounded-sm focus:border-black outline-none"
-              placeholder="e.g. Breaking update..."
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Content / Story Details</label>
-            <textarea
-              required
-              rows={10}
-              value={currentSportsNews.content}
-              onChange={e => setCurrentSportsNews(prev => ({ ...prev, content: e.target.value }))}
-              className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none resize-y"
-              placeholder="Write the full story, details, etc..."
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Image URL (Optional)</label>
-            <input
-              value={currentSportsNews.imageUrl || ''}
-              onChange={e => setCurrentSportsNews(prev => ({ ...prev, imageUrl: e.target.value }))}
-              className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none bg-white"
-              placeholder="https://..."
-            />
-            {currentSportsNews.imageUrl && (
-              <div className="mt-2 h-40 w-full overflow-hidden rounded-sm border border-gray-200">
-                <img src={currentSportsNews.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-              </div>
-            )}
-          </div>
-          
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Category</label>
-              <select 
-                required
-                value={currentSportsNews.category}
-                onChange={e => setCurrentSportsNews(prev => ({ ...prev, category: e.target.value as 'Transfer News' | 'Sports Today' }))}
-                className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none bg-white"
-              >
-                <option value="Transfer News">Transfer News</option>
-                <option value="Sports Today">Sports Today</option>
-                <option value="General">General Short News</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Status</label>
-
-            <select
-              value={currentSportsNews.status}
-              onChange={e => setCurrentSportsNews(prev => ({ ...prev, status: e.target.value as 'draft' | 'published' }))}
-              className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white"
-            >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-            </select>
-          </div>
-          <div className="flex justify-end gap-4 pt-4 border-t border-gray-100">
-            <button type="button" onClick={() => setIsEditingSportsNews(false)} className="px-6 py-3 font-bold uppercase text-xs text-gray-500 hover:text-black transition-colors">Cancel</button>
-            <button type="submit" className="bg-red-600 text-white px-8 py-3 font-bold uppercase text-xs hover:bg-red-800 transition-colors shadow-lg">
-              {currentSportsNews.id ? 'Update News' : 'Publish News'}
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div >
   );
 };

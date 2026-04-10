@@ -35,13 +35,18 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
 
     // Removed expansion effect logic as we now navigate to separate pages
 
+    const isTransferNews = article.categoryName.toLowerCase() === 'transfer news';
+
     const renderContent = () => {
+        if (isTransferNews) {
+            return <div dangerouslySetInnerHTML={{ __html: article.content }} className="prose prose-sm max-w-none text-gray-800" />;
+        }
         return <Highlight text={article.excerpt} highlight={searchQuery} />;
     };
 
     const renderTitle = () => {
         return <Highlight text={article.title} highlight={searchQuery} />;
-    }
+    };
 
     // Hero variant (large featured article)
     if (variant === 'hero') {
@@ -62,15 +67,17 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                         {renderTitle()}
                     </h2>
                 </Link>
-                <div className={`font-serif text-gray-700 leading-relaxed text-base md:text-lg mb-4 transition-all duration-500`}>
+                <div className={`font-serif leading-relaxed text-base md:text-lg mb-4 transition-all duration-500`}>
                     {renderContent()}
                 </div>
-                <Link
-                    href={`/article/${article.slug}`}
-                    className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 font-bold text-sm uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
-                >
-                    Read More →
-                </Link>
+                {!isTransferNews && (
+                    <Link
+                        href={`/article/${article.slug}`}
+                        className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 font-bold text-sm uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
+                    >
+                        Read More →
+                    </Link>
+                )}
             </div>
         );
     }
@@ -88,15 +95,17 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                         {renderTitle()}
                     </h4>
                 </Link>
-                <div className={`text-sm text-gray-600 mb-4 leading-relaxed transition-all duration-500`}>
+                <div className={`text-sm mb-4 leading-relaxed transition-all duration-500`}>
                     {renderContent()}
                 </div>
-                <Link
-                    href={`/article/${article.slug}`}
-                    className="text-xs text-black font-bold uppercase hover:text-red-700 transition-colors text-left mt-auto inline-block"
-                >
-                    Read More →
-                </Link>
+                {!isTransferNews && (
+                    <Link
+                        href={`/article/${article.slug}`}
+                        className="text-xs text-black font-bold uppercase hover:text-red-700 transition-colors text-left mt-auto inline-block"
+                    >
+                        Read More →
+                    </Link>
+                )}
             </div>
         );
     }
@@ -123,12 +132,19 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                     </Link>
                 </div>
                 {/* Removed in-place content injection */}
-                <Link
-                    href={`/article/${article.slug}`}
-                    className="text-xs text-red-700 font-bold uppercase text-left hover:underline transition-all"
-                >
-                    Read More →
-                </Link>
+                {!isTransferNews && (
+                    <Link
+                        href={`/article/${article.slug}`}
+                        className="text-xs text-red-700 font-bold uppercase text-left hover:underline transition-all"
+                    >
+                        Read More →
+                    </Link>
+                )}
+                {isTransferNews && (
+                    <div className="mt-4 text-sm leading-relaxed text-gray-800">
+                        {renderContent()}
+                    </div>
+                )}
             </div>
         );
     }
@@ -146,16 +162,18 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                         {renderTitle()}
                     </h4>
                 </Link>
-                <div className={`text-xs text-gray-700 leading-relaxed mb-3 transition-all duration-500`}>
+                <div className={`text-xs leading-relaxed mb-3 transition-all duration-500`}>
                     {renderContent()}
                 </div>
-                <p className="text-xs text-gray-400 font-bold mb-4">By {article.authorName} • {new Date(article.publishedAt).toLocaleDateString()}</p>
-                <Link
-                    href={`/article/${article.slug}`}
-                    className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
-                >
-                    Read More →
-                </Link>
+                {!isTransferNews && <p className="text-xs text-gray-400 font-bold mb-4">By {article.authorName} • {new Date(article.publishedAt).toLocaleDateString()}</p>}
+                {!isTransferNews && (
+                    <Link
+                        href={`/article/${article.slug}`}
+                        className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
+                    >
+                        Read More →
+                    </Link>
+                )}
             </div>
         </div>
     );

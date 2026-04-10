@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Article, SportsNews } from '../types';
+import { Article } from '../types';
 import { api } from '../services/api';
 import { ArticleCard } from '../components/ArticleCard';
 
@@ -65,7 +65,7 @@ const SectionSports = ({ articles }: { articles: Article[] }) => (
   </section>
 );
 
-const Sidebar = ({ sportsNews }: { sportsNews: SportsNews[] }) => (
+const Sidebar = ({ transferNews }: { transferNews: Article[] }) => (
   <aside className="space-y-10">
     <div className="bg-black text-white p-8 border-t-8 border-red-700 shadow-2xl relative overflow-hidden">
       <div className="absolute top-0 right-0 p-2 transform rotate-12 opacity-10 scale-150 pointer-events-none">
@@ -76,22 +76,22 @@ const Sidebar = ({ sportsNews }: { sportsNews: SportsNews[] }) => (
         Direct Hub
       </h4>
       <div className="space-y-8 relative z-10">
-        {sportsNews.slice(0, 4).map((item, idx) => (
+        {transferNews.slice(0, 4).map((item, idx) => (
           <div key={item.id} className="group/item">
-            <Link href="/sports" className="flex items-start gap-4">
+            <Link href={`/category/${item.categoryId}`} className="flex items-start gap-4">
               <span className="text-gray-800 font-serif font-black text-3xl group-hover/item:text-red-700 transition-colors leading-none">{idx + 1}</span>
               <div className="flex-1">
                   <h5 className="font-serif font-bold text-sm leading-tight group-hover/item:text-red-500 transition-colors line-clamp-2">{item.title}</h5>
                   <div className="flex items-center gap-2 mt-3 overflow-hidden">
-                    <span className="bg-red-700 text-white text-[9px] font-black px-1.5 py-0.5 uppercase tracking-tighter shrink-0">{item.category}</span>
-                    <span className="text-gray-700 text-[9px] font-bold uppercase tracking-widest">{new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                    <span className="bg-red-700 text-white text-[9px] font-black px-1.5 py-0.5 uppercase tracking-tighter shrink-0">{item.categoryName}</span>
+                    <span className="text-gray-700 text-[9px] font-bold uppercase tracking-widest">{new Date(item.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                   </div>
               </div>
             </Link>
           </div>
         ))}
       </div>
-      <Link href="/sports" className="block text-center mt-10 text-[10px] font-black uppercase tracking-[0.3em] bg-red-700 py-4 hover:bg-white hover:text-black transition-all transform hover:-translate-y-1 duration-300">
+      <Link href="/category/transfer-news" className="block text-center mt-10 text-[10px] font-black uppercase tracking-[0.3em] bg-red-700 py-4 hover:bg-white hover:text-black transition-all transform hover:-translate-y-1 duration-300">
         Access Sports Hub
       </Link>
     </div>
@@ -135,7 +135,7 @@ const MobileNewsFeed = ({ articles }: { articles: Article[] }) => {
 
 export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[] }) => {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
-  const [sportsNews, setSportsNews] = useState<SportsNews[]>([]);
+  const [transferNews, setTransferNews] = useState<Article[]>([]);
   const searchParams = useSearchParams();
   const categoryFilter = searchParams?.get('cat');
 
@@ -151,12 +151,11 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [allArticles, allSportsNews] = await Promise.all([
-          api.getArticles(),
-          api.getSportsNews()
-        ]);
-        if (allArticles.length > 0) setArticles(allArticles);
-        if (allSportsNews.length > 0) setSportsNews(allSportsNews.filter(n => n.status === 'published').slice(0, 10));
+        const allArticles = await api.getArticles();
+        if (allArticles.length > 0) {
+            setArticles(allArticles);
+            setTransferNews(allArticles.filter(a => a.categoryName.toLowerCase() === 'transfer news' && a.status === 'published').slice(0, 10));
+        }
       } catch (err) {
         console.error('Failed to load fresh data:', err);
       }
@@ -164,7 +163,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
     loadData();
   }, []);
 
-  const sportsArticles = articles.filter(a => a.categoryName === 'Sports');
+  const sportsArticles = articles.filter(a => ['sports', 'sports news'].includes(a.categoryName.toLowerCase()));
   const techArticles = articles.filter(a => a.categoryName === 'Technology');
 
   if (categoryFilter) return null;
@@ -196,7 +195,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
 
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
-            <Sidebar sportsNews={sportsNews} />
+            <Sidebar transferNews={transferNews} />
           </div>
         </div>
       </div>
