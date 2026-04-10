@@ -78,12 +78,18 @@ export const AdminDashboard = () => {
     }
   }, [editId, articles]);
 
-// Init Quill when modal opens
+  // Init Quill when modal opens
   useEffect(() => {
     if (isEditing && quillRef.current && !editorInstanceRef.current) {
       import('quill').then((QuillModule) => {
         const Quill = QuillModule.default;
-        editorInstanceRef.current = new Quill(quillRef.current!, {
+        
+        // Clear container before initializing to prevent multiple toolbars/editors
+        if (quillRef.current) {
+          quillRef.current.innerHTML = '';
+        }
+
+        const quill = new Quill(quillRef.current!, {
           theme: 'snow',
           placeholder: 'Write your story here...',
           modules: {
@@ -96,31 +102,31 @@ export const AdminDashboard = () => {
             ]
           }
         });
+        
+        editorInstanceRef.current = quill;
+
+        // Load initial content
+        quill.root.innerHTML = currentArticle.content || '';
 
         // Handle Content Change
-        editorInstanceRef.current.on('text-change', () => {
-          if (editorInstanceRef.current) {
-            const html = editorInstanceRef.current.root.innerHTML;
-            setCurrentArticle(prev => ({ ...prev, content: html }));
-          }
+        quill.on('text-change', () => {
+          const html = quill.root.innerHTML;
+          // We use a functional update and check to avoid unnecessary state triggers
+          setCurrentArticle(prev => {
+            if (prev.content === html) return prev;
+            return { ...prev, content: html };
+          });
         });
       }).catch(err => {
         console.error("Failed to load Quill editor", err);
       });
-    }    // Load initial content if editing
-    if (isEditing && editorInstanceRef.current && currentArticle.content) {
-      // Check if empty or significantly different
-      if (editorInstanceRef.current.root.innerHTML !== currentArticle.content) {
-        editorInstanceRef.current.root.innerHTML = currentArticle.content;
-      }
     }
 
     // Cleanup when modal closes
-    if (!isEditing && editorInstanceRef.current) {
+    return () => {
       editorInstanceRef.current = null;
-    }
-
-  }, [isEditing]);
+    };
+  }, [isEditing]); // Only re-run when modal opens/closes
 
   const loadData = async () => {
     const [arts, cats, auths, comms, ticker] = await Promise.all([
@@ -225,9 +231,10 @@ export const AdminDashboard = () => {
 
     try {
       // Combine image position into coverImage URL before saving
+      const coverImageBase = (currentArticle.coverImage || '').split('#')[0];
       const articleToSave = {
         ...currentArticle,
-        coverImage: `${currentArticle.coverImage.split('#')[0]}#pos=${imagePosX}%_${imagePosY}%`
+        coverImage: coverImageBase ? `${coverImageBase}#pos=${imagePosX}%_${imagePosY}%` : ''
       };
       if (currentArticle.id) {
         await api.updateArticle(currentArticle.id, articleToSave);
@@ -236,9 +243,10 @@ export const AdminDashboard = () => {
       }
       setIsEditing(false);
       loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save article:", error);
-      alert("Failed to save article. If you pasted a very large image, try reducing its size or uploading it elsewhere then linking it, as it may exceed server upload limits.");
+      const message = error.message || "Unknown error";
+      alert(`❌ Failed to save article: ${message}\n\nTroubleshooting:\n1. If you pasted a very large image, try reducing its size or uploading it elsewhere.\n2. Ensure all required fields are filled.\n3. Large images in the body content can exceed server limits.`);
     }
   };
 
@@ -275,13 +283,41 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (base64Str: string, maxWidth = 1200): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = () => resolve(base64Str);
+    });
+  };
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("⚠️ This file is very large. It will be automatically compressed before saving.");
+      }
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const result = reader.result as string;
-        setCurrentArticle(prev => ({ ...prev, coverImage: result }));
+        const compressed = await compressImage(result);
+        setCurrentArticle(prev => ({ ...prev, coverImage: compressed }));
       };
       reader.readAsDataURL(file);
     }
@@ -664,12 +700,23 @@ export const AdminDashboard = () => {
                     </span>
                   )}
                 </div>
-                <div className="bg-white border border-gray-300 rounded-sm">
-                  <style>{`
-                    ${currentArticle.categoryName !== 'Entertainment and Trends' ? '.ql-video { display: none !important; }' : ''}
-                  `}</style>
-                  <div ref={quillRef} className="h-96"></div>
-                </div>
+                  <div className="bg-white border border-gray-300 rounded-sm relative">
+                    <style>{`
+                      ${currentArticle.categoryName !== 'Entertainment and Trends' ? '.ql-video { display: none !important; }' : ''}
+                    `}</style>
+                    {!editorInstanceRef.current && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 z-10">
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span className="text-xs font-bold uppercase tracking-widest">Initializing Editor...</span>
+                        </div>
+                      </div>
+                    )}
+                    <div ref={quillRef} className="h-96"></div>
+                  </div>
                 <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 300+ words for AdSense approval.</p>
               </div>
 

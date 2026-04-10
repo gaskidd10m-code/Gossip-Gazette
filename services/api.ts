@@ -97,6 +97,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name })
     });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: 'Failed to create category' }));
+      throw new Error(error.error || 'Failed to create category');
+    }
     return res.json();
   },
 
@@ -112,6 +116,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: 'Failed to create article' }));
+      throw new Error(error.error || 'Failed to create article');
+    }
     return res.json();
   },
 
@@ -122,6 +130,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: 'Failed to update article' }));
+      throw new Error(error.error || 'Failed to update article');
+    }
     return { ...data, id } as Article;
   },
 
@@ -150,6 +162,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(commentData)
     });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: 'Failed to add comment' }));
+      throw new Error(error.error || 'Failed to add comment');
+    }
     return res.json();
   },
 
@@ -178,6 +194,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: 'Failed to create sports news' }));
+      throw new Error(error.error || 'Failed to create sports news');
+    }
     return res.json();
   },
 

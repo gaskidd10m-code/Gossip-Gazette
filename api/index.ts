@@ -173,7 +173,7 @@ const db = {
         const map: Record<string, string> = {
             title: 'title', slug: 'slug', excerpt: 'excerpt', content: 'content',
             coverImage: 'cover_image', categoryId: 'category_id', categoryName: 'category_name',
-            tags: 'tags', status: 'status', publishedAt: 'published_at', views: 'views'
+            tags: 'tags', status: 'status', publishedAt: 'published_at', views: 'views', source: 'source'
         };
 
         Object.entries(data).forEach(([key, val]) => {
@@ -361,13 +361,13 @@ const db = {
         const fields: string[] = [];
         const values: any[] = [];
         let idx = 1;
-        if (data.title !== undefined) { fields.push(`title = ${idx++}`); values.push(data.title); }
-        if (data.content !== undefined) { fields.push(`content = ${idx++}`); values.push(data.content); }
-        if (data.category !== undefined) { fields.push(`category = ${idx++}`); values.push(data.category); }
-        if (data.status !== undefined) { fields.push(`status = ${idx++}`); values.push(data.status); }
+        if (data.title !== undefined) { fields.push(`title = $${idx++}`); values.push(data.title); }
+        if (data.content !== undefined) { fields.push(`content = $${idx++}`); values.push(data.content); }
+        if (data.category !== undefined) { fields.push(`category = $${idx++}`); values.push(data.category); }
+        if (data.status !== undefined) { fields.push(`status = $${idx++}`); values.push(data.status); }
         if (fields.length === 0) return;
         values.push(id);
-        await executeSql(`UPDATE sports_news SET ${fields.join(', ')} WHERE id = ${idx}`, values);
+        await executeSql(`UPDATE sports_news SET ${fields.join(', ')} WHERE id = $${idx}`, values);
     },
 
     async deleteSportsNews(id: string): Promise<void> {
