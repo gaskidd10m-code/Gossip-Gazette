@@ -28,6 +28,7 @@ export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<'articles' | 'categories' | 'comments' | 'settings'>('articles');
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -122,11 +123,12 @@ export const AdminDashboard = () => {
   }, [isEditing]);
 
   const loadData = async () => {
-    const [arts, cats, comms, ticker] = await Promise.all([
-      api.getArticles(), api.getCategories(), api.getAllComments(), api.getSetting('ticker_text')
+    const [arts, cats, auths, comms, ticker] = await Promise.all([
+      api.getArticles(), api.getCategories(), api.getAllAuthors(), api.getAllComments(), api.getSetting('ticker_text')
     ]);
     setArticles(arts);
     setCategories(cats);
+    setAuthors(auths);
     setComments(comms);
     setTickerText(ticker);
   };
@@ -163,10 +165,14 @@ export const AdminDashboard = () => {
   };
 
   const handleCreate = () => {
+    const defaultAuthor = authors.find(a => a.name.includes('Sarah')) || authors[0];
     setCurrentArticle({
       title: '', slug: '', excerpt: '', content: '', coverImage: 'https://picsum.photos/800/600',
       categoryName: categories[0]?.name || '', categoryId: String(categories[0]?.id || ''),
-      tags: [], status: 'draft', publishedAt: new Date().toISOString(), source: ''
+      tags: [], status: 'draft', publishedAt: new Date().toISOString(), source: '',
+      // @ts-ignore
+      authorId: defaultAuthor?.id || 'sarah-mitchell',
+      authorName: defaultAuthor?.name || 'Sarah Mitchell'
     });
     setImagePosX(50);
     setImagePosY(50);
@@ -176,11 +182,18 @@ export const AdminDashboard = () => {
   };
 
   const handleCreateTransferNews = () => {
-    const transferCat = categories.find(c => c.name.toLowerCase().includes('transfer'));
+    const transferCat = categories.find(c => c.name.toLowerCase().includes('transfer')) || 
+                        categories.find(c => c.slug.includes('sport')) || 
+                        categories[0];
+    const defaultAuthor = authors.find(a => a.name.includes('Sarah')) || authors[0];
+
     setCurrentArticle({
       title: '', slug: '', excerpt: 'Transfer News update.', content: '', coverImage: 'https://picsum.photos/800/600',
       categoryName: transferCat?.name || 'Transfer News', categoryId: String(transferCat?.id || ''),
-      tags: ['transfer'], status: 'draft', publishedAt: new Date().toISOString(), source: ''
+      tags: ['transfer'], status: 'draft', publishedAt: new Date().toISOString(), source: '',
+      // @ts-ignore - Including fields for backend
+      authorId: defaultAuthor?.id || 'sarah-mitchell',
+      authorName: defaultAuthor?.name || 'Sarah Mitchell'
     });
     setImagePosX(50);
     setImagePosY(50);
