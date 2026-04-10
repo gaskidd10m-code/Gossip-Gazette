@@ -303,9 +303,6 @@ export const AdminDashboard = () => {
           <button onClick={handleLogout} className="text-gray-500 font-bold text-sm hover:text-red-600 transition-colors">
             Sign Out
           </button>
-          <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-6 py-3 font-bold text-sm uppercase hover:bg-black transition-colors shadow-lg">
-            ⚡ Add Transfer News
-          </button>
           <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
             + Create Article
           </button>
@@ -416,6 +413,17 @@ export const AdminDashboard = () => {
                     Showing {filteredArticles.length} of {articles.length} articles
                   </span>
                 )}
+                {(() => {
+                  const selectedCat = categories.find(c => String(c.id) === selectedCategory);
+                  if (selectedCat && selectedCat.slug === 'sports-news') {
+                    return (
+                      <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-5 py-2 font-bold text-xs uppercase hover:bg-black transition-colors shadow-md rounded-sm">
+                        ⚡ Add Transfer News
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               {/* Articles Table */}
@@ -709,8 +717,11 @@ export const AdminDashboard = () => {
                          min="0" max="100" 
                          value={currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}
                          onChange={(e) => {
-                           const focusY = currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50';
-                           setCurrentArticle(prev => ({ ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${e.target.value}%_${focusY}%` }));
+                           const newX = e.target.value;
+                           setCurrentArticle(prev => {
+                             const prevY = prev.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50';
+                             return { ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${newX}%_${prevY}%` };
+                           });
                          }}
                          className="w-full accent-black"
                        />
@@ -725,8 +736,11 @@ export const AdminDashboard = () => {
                          min="0" max="100" 
                          value={currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}
                          onChange={(e) => {
-                           const focusX = currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50';
-                           setCurrentArticle(prev => ({ ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${focusX}%_${e.target.value}%` }));
+                           const newY = e.target.value;
+                           setCurrentArticle(prev => {
+                             const prevX = prev.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50';
+                             return { ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${prevX}%_${newY}%` };
+                           });
                          }}
                          className="w-full accent-black"
                        />
@@ -739,7 +753,7 @@ export const AdminDashboard = () => {
                     <img 
                       src={currentArticle.coverImage.split('#')[0]} 
                       alt="Preview" 
-                      className={`w-full h-full object-cover`}
+                      className="w-full h-full object-cover"
                       style={{
                         objectPosition: `${currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}% ${currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}%`
                       }}
