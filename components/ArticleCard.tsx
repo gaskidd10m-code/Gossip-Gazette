@@ -35,7 +35,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
 
     // Removed expansion effect logic as we now navigate to separate pages
 
-    const isShortNews = article.categoryName.toLowerCase().includes('transfer');
+    const isShortNews = article.categoryName.toLowerCase().includes('transfer') || (article.tags && article.tags.some(t => t.toLowerCase() === 'transfer'));
 
     // Parse focal position from hash (e.g. #pos=50%_50%)
     const posMatch = article.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
