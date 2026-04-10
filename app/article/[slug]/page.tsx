@@ -133,7 +133,10 @@ export default async function ArticleSSRPage(
                 <img
                   src={article.coverImage.split('#')[0]}
                   alt={article.title}
-                  className={`w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[700px] object-cover ${article.coverImage.match(/#(object-[a-z-]+)/)?.[1] || 'object-top'} rounded-sm shadow-xl`}
+                  className="w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[700px] object-cover rounded-sm shadow-xl"
+                  style={{
+                    objectPosition: `${article.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}% ${article.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}%`
+                  }}
                 />
                 <figcaption className="text-xs text-gray-400 text-left mt-3 italic">
                   <span>Image source: Picsum Photos</span>

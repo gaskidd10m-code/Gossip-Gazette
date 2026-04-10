@@ -164,6 +164,17 @@ export const AdminDashboard = () => {
     setIsEditing(true);
   };
 
+  const handleCreateTransferNews = () => {
+    const transferCat = categories.find(c => c.slug === 'transfer-news');
+    setCurrentArticle({
+      title: '', slug: '', excerpt: 'Transfer News update.', content: '', coverImage: 'https://picsum.photos/800/600',
+      categoryName: transferCat?.name || 'Transfer News', categoryId: String(transferCat?.id || ''),
+      tags: ['transfer'], status: 'draft', publishedAt: new Date().toISOString(), source: ''
+    });
+    setUseImageUpload(false);
+    setIsEditing(true);
+  };
+
 
 
   const getWordCount = (html: string) => {
@@ -222,8 +233,8 @@ export const AdminDashboard = () => {
       // Simple comma separated handling
       setCurrentArticle(prev => ({ ...prev, tags: value.split(',').map(t => t.trim()) }));
     } else if (name === 'coverImage') {
-      const currentPosMatch = currentArticle.coverImage?.match(/#(object-[a-z-]+)/);
-      const currentPos = currentPosMatch ? currentPosMatch[1] : 'object-center';
+      const currentPosMatch = currentArticle.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
+      const currentPos = currentPosMatch ? `pos=${currentPosMatch[1]}%_${currentPosMatch[2]}%` : 'pos=50%_50%';
       setCurrentArticle(prev => ({ ...prev, coverImage: `${value.split('#')[0]}#${currentPos}` }));
     } else {
       setCurrentArticle(prev => ({ ...prev, [name]: value }));
@@ -234,8 +245,8 @@ export const AdminDashboard = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      const currentPosMatch = currentArticle.coverImage?.match(/#(object-[a-z-]+)/);
-      const currentPos = currentPosMatch ? currentPosMatch[1] : 'object-center';
+      const currentPosMatch = currentArticle.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
+      const currentPos = currentPosMatch ? `pos=${currentPosMatch[1]}%_${currentPosMatch[2]}%` : 'pos=50%_50%';
       reader.onloadend = () => {
         const result = reader.result as string;
         setCurrentArticle(prev => ({ ...prev, coverImage: `${result.split('#')[0]}#${currentPos}` }));
@@ -291,6 +302,9 @@ export const AdminDashboard = () => {
         <div className="flex items-center gap-6">
           <button onClick={handleLogout} className="text-gray-500 font-bold text-sm hover:text-red-600 transition-colors">
             Sign Out
+          </button>
+          <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-6 py-3 font-bold text-sm uppercase hover:bg-black transition-colors shadow-lg">
+            ⚡ Add Transfer News
           </button>
           <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
             + Create Article
@@ -681,24 +695,55 @@ export const AdminDashboard = () => {
                   <input name="coverImage" value={currentArticle.coverImage.split('#')[0]} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
                 )}
 
-                <div className="mt-4 flex flex-col gap-2">
-                   <label className="text-xs font-bold uppercase text-gray-500">Image Focal Position</label>
-                   <select 
-                     value={currentArticle.coverImage.match(/#(object-[a-z-]+)/)?.[1] || 'object-center'}
-                     onChange={(e) => setCurrentArticle(prev => ({ ...prev, coverImage: `${prev.coverImage.split('#')[0]}#${e.target.value}` }))}
-                     className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white"
-                   >
-                     <option value="object-top">Top (Head/Faces)</option>
-                     <option value="object-center">Center (Middle)</option>
-                     <option value="object-bottom">Bottom (Legs/Feet)</option>
-                     <option value="object-left">Left</option>
-                     <option value="object-right">Right</option>
-                   </select>
+                <div className="mt-4 flex flex-col gap-4 bg-gray-50 border border-gray-200 p-4 rounded-sm">
+                   <label className="text-xs font-bold uppercase text-gray-500">Advanced Image Focal Position</label>
+                   
+                   <div className="space-y-4">
+                     <div>
+                       <div className="flex justify-between text-xs text-gray-500 mb-1">
+                         <span>Horizontal (X)</span>
+                         <span>{currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}%</span>
+                       </div>
+                       <input 
+                         type="range" 
+                         min="0" max="100" 
+                         value={currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}
+                         onChange={(e) => {
+                           const focusY = currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50';
+                           setCurrentArticle(prev => ({ ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${e.target.value}%_${focusY}%` }));
+                         }}
+                         className="w-full accent-black"
+                       />
+                     </div>
+                     <div>
+                       <div className="flex justify-between text-xs text-gray-500 mb-1">
+                         <span>Vertical (Y)</span>
+                         <span>{currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}%</span>
+                       </div>
+                       <input 
+                         type="range" 
+                         min="0" max="100" 
+                         value={currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}
+                         onChange={(e) => {
+                           const focusX = currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50';
+                           setCurrentArticle(prev => ({ ...prev, coverImage: `${prev.coverImage.split('#')[0]}#pos=${focusX}%_${e.target.value}%` }));
+                         }}
+                         className="w-full accent-black"
+                       />
+                     </div>
+                   </div>
                 </div>
 
                 {currentArticle.coverImage && (
-                  <div className="mt-4 relative h-32 w-full overflow-hidden rounded-sm border border-gray-200">
-                    <img src={currentArticle.coverImage.split('#')[0]} alt="Preview" className={`w-full h-full object-cover ${currentArticle.coverImage.match(/#(object-[a-z-]+)/)?.[1] || 'object-center'}`} />
+                  <div className="mt-4 relative h-48 w-full overflow-hidden rounded-sm border border-gray-300">
+                    <img 
+                      src={currentArticle.coverImage.split('#')[0]} 
+                      alt="Preview" 
+                      className={`w-full h-full object-cover`}
+                      style={{
+                        objectPosition: `${currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[1] || '50'}% ${currentArticle.coverImage.match(/#pos=([0-9.]+)%_([0-9.]+)%/)?.[2] || '50'}%`
+                      }}
+                    />
                   </div>
                 )}
               </div>
