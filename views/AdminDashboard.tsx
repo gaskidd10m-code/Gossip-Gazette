@@ -310,9 +310,12 @@ export const AdminDashboard = () => {
           <h1 className="text-3xl font-black uppercase tracking-tight">Editorial Dashboard</h1>
           <p className="text-sm text-gray-500 mt-1">Manage content, users, and settings.</p>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <button onClick={handleLogout} className="text-gray-500 font-bold text-sm hover:text-red-600 transition-colors">
             Sign Out
+          </button>
+          <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-5 py-2.5 font-bold text-sm uppercase hover:bg-red-800 transition-colors shadow-lg rounded-sm">
+            ⚡ Transfer News
           </button>
           <button onClick={handleCreate} className="bg-black text-white px-6 py-3 font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg">
             + Create Article
@@ -424,15 +427,6 @@ export const AdminDashboard = () => {
                     Showing {filteredArticles.length} of {articles.length} articles
                   </span>
                 )}
-                {(() => {
-                  const selectedCat = categories.find(c => String(c.id) === selectedCategory);
-                  const isSportsCategory = selectedCat && selectedCat.name.toLowerCase().includes('sport');
-                  return isSportsCategory ? (
-                    <button onClick={handleCreateTransferNews} className="bg-red-700 text-white px-5 py-2 font-bold text-xs uppercase hover:bg-black transition-colors shadow-md rounded-sm">
-                      ⚡ Add Transfer News
-                    </button>
-                  ) : null;
-                })()}
               </div>
 
               {/* Articles Table */}
@@ -712,47 +706,48 @@ export const AdminDashboard = () => {
                   <input name="coverImage" value={currentArticle.coverImage} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
                 )}
 
-                <div className="mt-4 flex flex-col gap-4 bg-gray-50 border border-gray-200 p-4 rounded-sm">
-                   <label className="text-xs font-bold uppercase text-gray-500">Image Focal Position</label>
-                   
-                   <div className="space-y-4">
-                     <div>
-                       <div className="flex justify-between text-xs text-gray-500 mb-1">
-                         <span>← Left / Right →</span>
-                         <span>{imagePosX}%</span>
-                       </div>
-                       <input 
-                         type="range" 
-                         min="0" max="100" 
-                         value={imagePosX}
-                         onChange={(e) => setImagePosX(Number(e.target.value))}
-                         className="w-full accent-black"
-                       />
-                     </div>
-                     <div>
-                       <div className="flex justify-between text-xs text-gray-500 mb-1">
-                         <span>↑ Top / Bottom ↓</span>
-                         <span>{imagePosY}%</span>
-                       </div>
-                       <input 
-                         type="range" 
-                         min="0" max="100" 
-                         value={imagePosY}
-                         onChange={(e) => setImagePosY(Number(e.target.value))}
-                         className="w-full accent-black"
-                       />
-                     </div>
-                   </div>
+                <div className="mt-4 flex flex-col gap-3 bg-gray-50 border border-gray-200 p-4 rounded-sm">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold uppercase text-gray-500">Image Focal Point — Click on the image to set focus</label>
+                    <button type="button" onClick={() => { setImagePosX(50); setImagePosY(50); }} className="text-[10px] text-blue-600 font-bold hover:underline">Reset Center</button>
+                  </div>
+                  <p className="text-[11px] text-gray-400">The red crosshair shows where the image will be anchored when cropped on the site.</p>
                 </div>
 
                 {currentArticle.coverImage && (
-                  <div className="mt-4 relative h-48 w-full overflow-hidden rounded-sm border border-gray-300">
+                  <div 
+                    className="mt-3 relative w-full overflow-hidden rounded-sm border-2 border-gray-300 cursor-crosshair group"
+                    style={{ height: '250px' }}
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+                      const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+                      setImagePosX(Math.max(0, Math.min(100, x)));
+                      setImagePosY(Math.max(0, Math.min(100, y)));
+                    }}
+                  >
+                    {/* Full unclipped image for clicking */}
                     <img 
                       src={currentArticle.coverImage} 
-                      alt="Preview" 
+                      alt="Click to set focal point" 
                       className="w-full h-full object-cover"
                       style={{ objectPosition: `${imagePosX}% ${imagePosY}%` }}
+                      draggable={false}
                     />
+                    {/* Crosshair overlay */}
+                    <div 
+                      className="absolute pointer-events-none"
+                      style={{ left: `${imagePosX}%`, top: `${imagePosY}%`, transform: 'translate(-50%, -50%)' }}
+                    >
+                      <div className="w-8 h-8 rounded-full border-2 border-red-600 bg-red-600/20 shadow-lg">
+                        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-red-600 -translate-x-1/2"></div>
+                        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-600 -translate-y-1/2"></div>
+                      </div>
+                    </div>
+                    {/* Position label */}
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded">
+                      X: {imagePosX}% &nbsp; Y: {imagePosY}%
+                    </div>
                   </div>
                 )}
               </div>
