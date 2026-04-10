@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '../services/api';
-import { Article, ArticleFormData, Category, Comment, SportsNews, SportsNewsFormData } from '../types';
+import { Article, ArticleFormData, Author, Category, Comment, SportsNews, SportsNewsFormData } from '../types';
 import type Quill from 'quill';
 
 // Simple Modal Component
