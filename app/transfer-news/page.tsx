@@ -4,44 +4,44 @@ import { db } from '../../lib/db';
 import { SportsNews } from '../../types';
 
 export const metadata = {
-  title: 'Sports News | Gossip Gazette',
-  description: 'Latest sports news, scores, transfer rumors, and breaking updates.'
+  title: 'Transfer News | Gossip Gazette',
+  description: 'Latest transfer rumors, completed deals, and exclusive scoops.'
 };
 
-async function getPublishedSportsNews(): Promise<SportsNews[]> {
+async function getPublishedTransferNews(): Promise<SportsNews[]> {
   try {
     const rows = await db.query(
       `SELECT id, title, content, cover_image AS "imageUrl", category_name as category, status, published_at AS "createdAt"
        FROM articles 
-       WHERE status = 'published' AND LOWER(category_name) IN ('sports', 'sports news')
+       WHERE status = 'published' AND LOWER(category_name) = 'transfer news'
        ORDER BY published_at DESC`
     );
     return rows;
   } catch (error) {
-    console.error('Error fetching sports news:', error);
+    console.error('Error fetching transfer news:', error);
     return [];
   }
 }
 
-export default async function SportsNewsPage() {
-  const news = await getPublishedSportsNews();
+export default async function TransferNewsPage() {
+  const news = await getPublishedTransferNews();
 
   return (
     <div className="w-full py-8 md:py-16 px-4 md:px-12 bg-white">
       <div className="mb-16 border-b-2 border-black pb-8 text-center max-w-4xl mx-auto">
         <h1 className="text-5xl md:text-7xl font-sans font-black uppercase tracking-tighter mb-4 text-black">
-          Sports Center
+          Transfer News
         </h1>
         <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-sm md:text-base">
-          Match Updates • Transfer Rumors • Live Coverage
+          Completed Deals • Speculations • Exclusive Scoops
         </p>
       </div>
 
       <div>
         {news.length === 0 ? (
           <div className="text-center py-24 border border-gray-200 bg-gray-50 uppercase tracking-widest text-gray-500 font-bold text-sm">
-            <span className="text-3xl mb-4 block">⚽</span>
-            No breaking sports news at the moment.
+            <span className="text-3xl mb-4 block">🔄</span>
+            No breaking transfer news at the moment.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -59,8 +59,8 @@ export default async function SportsNewsPage() {
                 )}
                 <div className="p-8 flex flex-col flex-grow bg-white">
                   <div className="flex justify-between items-center mb-6">
-                    <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white ${item.category === 'Transfer News' ? 'bg-red-700' : 'bg-black'}`}>
-                      {item.category.toUpperCase()}
+                    <span className="px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-red-700">
+                      TRANSFER NEWS
                     </span>
                     <time className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                       {new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}

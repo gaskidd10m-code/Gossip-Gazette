@@ -583,9 +583,9 @@ export const AdminDashboard = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {currentArticle.categoryName.toLowerCase() === 'transfer news' && (
+          {['transfer news', 'sports news'].includes(currentArticle.categoryName.toLowerCase()) && (
             <div className="bg-yellow-50 p-4 border border-yellow-200 text-yellow-800 text-sm font-bold rounded-sm mb-4">
-              ⚡ Transfer News Mode: Required fields are Headline, Content, and Image. This short form news will display without a 'Read More' button on the feed.
+              ⚡ Short News Mode: Required fields are Headline, Content, and Image. This short form news will display without a 'Read More' button on the feed.
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -612,7 +612,7 @@ export const AdminDashboard = () => {
                 <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 300+ words for AdSense approval.</p>
               </div>
 
-              {currentArticle.categoryName.toLowerCase() !== 'transfer news' && (
+              {!['transfer news', 'sports news'].includes(currentArticle.categoryName.toLowerCase()) && (
                 <div>
                   <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Excerpt (Summary)</label>
                   <textarea name="excerpt" rows={3} required value={currentArticle.excerpt} onChange={handleChange} className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none" placeholder="Brief summary for list views..."></textarea>
@@ -639,7 +639,7 @@ export const AdminDashboard = () => {
                 </select>
               </div>
 
-              {currentArticle.categoryName.toLowerCase() !== 'transfer news' && (
+              {!['transfer news', 'sports news'].includes(currentArticle.categoryName.toLowerCase()) && (
                 <>
                   <div>
                     <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Tags (Comma Separated)</label>

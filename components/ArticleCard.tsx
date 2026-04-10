@@ -35,10 +35,10 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
 
     // Removed expansion effect logic as we now navigate to separate pages
 
-    const isTransferNews = article.categoryName.toLowerCase() === 'transfer news';
+    const isShortNews = ['transfer news', 'sports news'].includes(article.categoryName.toLowerCase());
 
     const renderContent = () => {
-        if (isTransferNews) {
+        if (isShortNews) {
             return <div dangerouslySetInnerHTML={{ __html: article.content }} className="prose prose-sm max-w-none text-gray-800" />;
         }
         return <Highlight text={article.excerpt} highlight={searchQuery} />;
@@ -53,7 +53,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
         return (
             <div ref={contentRef} className="group relative">
                 <div className="overflow-hidden mb-4 rounded-sm shadow-sm">
-                    <img src={article.coverImage} alt={article.title} className="w-full h-56 md:h-[400px] object-cover bg-gray-100 transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                    <img src={article.coverImage} alt={article.title} className="w-full h-56 md:h-[400px] object-cover bg-gray-100 transition-transform duration-700 ${!isShortNews && 'group-hover:scale-105'}" loading="lazy" />
                 </div>
                 <div className="flex items-center gap-3 text-red-700 text-xs font-bold uppercase tracking-widest mb-4">
                     <Link href={`/category/${article.categoryName.toLowerCase()}`} className="bg-red-50 px-3 py-1.5 rounded hover:bg-red-100 transition-colors">
@@ -70,7 +70,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                 <div className={`font-serif leading-relaxed text-base md:text-lg mb-4 transition-all duration-500`}>
                     {renderContent()}
                 </div>
-                {!isTransferNews && (
+                {!isShortNews && (
                     <Link
                         href={`/article/${article.slug}`}
                         className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 font-bold text-sm uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
@@ -87,7 +87,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
         return (
             <div ref={contentRef} className="group block h-full flex flex-col">
                 <Link href={`/article/${article.slug}`} className="overflow-hidden mb-4 rounded-sm shadow-sm">
-                    <img src={article.coverImage} className="w-full h-48 object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105" loading="lazy" alt={article.title} />
+                    <img src={article.coverImage} className="w-full h-48 object-contain bg-gray-100 transition-transform duration-500 ${!isShortNews && 'group-hover:scale-105'}" loading="lazy" alt={article.title} />
                 </Link>
                 <span className="text-xs font-bold text-red-700 uppercase mb-2 block">{article.categoryName}</span>
                 <Link href={`/article/${article.slug}`}>
@@ -98,7 +98,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                 <div className={`text-sm mb-4 leading-relaxed transition-all duration-500`}>
                     {renderContent()}
                 </div>
-                {!isTransferNews && (
+                {!isShortNews && (
                     <Link
                         href={`/article/${article.slug}`}
                         className="text-xs text-black font-bold uppercase hover:text-red-700 transition-colors text-left mt-auto inline-block"
@@ -132,7 +132,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                     </Link>
                 </div>
                 {/* Removed in-place content injection */}
-                {!isTransferNews && (
+                {!isShortNews && (
                     <Link
                         href={`/article/${article.slug}`}
                         className="text-xs text-red-700 font-bold uppercase text-left hover:underline transition-all"
@@ -140,7 +140,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                         Read More →
                     </Link>
                 )}
-                {isTransferNews && (
+                {isShortNews && (
                     <div className="mt-4 text-sm leading-relaxed text-gray-800">
                         {renderContent()}
                     </div>
@@ -153,7 +153,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
     return (
         <div ref={contentRef} className="flex flex-col md:flex-row gap-6 items-start group border-b border-gray-100 pb-8 mb-8 last:border-0 last:pb-0 last:mb-0">
             <Link href={`/article/${article.slug}`} className="w-full md:w-64 h-40 flex-shrink-0 overflow-hidden rounded-sm shadow-sm">
-                <img src={article.coverImage} className="w-full h-full object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105" loading="lazy" alt={article.title} />
+                <img src={article.coverImage} className="w-full h-full object-contain bg-gray-100 transition-transform duration-500 ${!isShortNews && 'group-hover:scale-105'}" loading="lazy" alt={article.title} />
             </Link>
             <div className="flex-1">
                 <span className="text-red-700 text-[10px] font-bold uppercase mb-2 block tracking-widest">{article.categoryName}</span>
@@ -165,8 +165,8 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                 <div className={`text-xs leading-relaxed mb-3 transition-all duration-500`}>
                     {renderContent()}
                 </div>
-                {!isTransferNews && <p className="text-xs text-gray-400 font-bold mb-4">By {article.authorName} • {new Date(article.publishedAt).toLocaleDateString()}</p>}
-                {!isTransferNews && (
+                {!isShortNews && <p className="text-xs text-gray-400 font-bold mb-4">By {article.authorName} • {new Date(article.publishedAt).toLocaleDateString()}</p>}
+                {!isShortNews && (
                     <Link
                         href={`/article/${article.slug}`}
                         className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-all duration-300 rounded-sm shadow-md hover:shadow-lg"
