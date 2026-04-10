@@ -90,16 +90,20 @@ const Sidebar = ({ transferNews }: { transferNews: Article[] }) => (
       <div className="space-y-8 relative z-10">
         {transferNews.slice(0, 4).map((item, idx) => (
           <div key={item.id} className="group/item border-b border-gray-800/50 pb-6 last:border-0 last:pb-0">
-            <Link href={`/article/${item.slug}`} className="flex items-start gap-4">
-              <span className="text-gray-800 font-serif font-black text-3xl group-hover/item:text-red-700 transition-colors leading-none">{idx + 1}</span>
+            <div className="flex items-start gap-4">
+              <span className="text-gray-800 font-serif font-black text-3xl leading-none">{idx + 1}</span>
               <div className="flex-1">
-                  <h5 className="font-serif font-bold text-sm leading-tight group-hover/item:text-red-500 transition-colors line-clamp-2">{item.title}</h5>
+                  <h5 className="font-serif font-bold text-sm leading-tight text-white mb-3">{item.title}</h5>
+                  <div 
+                    dangerouslySetInnerHTML={{ __html: item.content }} 
+                    className="text-xs text-gray-400 font-serif leading-relaxed prose prose-invert prose-xs line-clamp-4"
+                  />
                   <div className="flex items-center gap-2 mt-3 overflow-hidden">
                     <span className="bg-red-700 text-white text-[9px] font-black px-1.5 py-0.5 uppercase tracking-tighter shrink-0">{item.categoryName}</span>
                     <span className="text-gray-700 text-[9px] font-bold uppercase tracking-widest">{new Date(item.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                   </div>
               </div>
-            </Link>
+            </div>
           </div>
         ))}
       </div>

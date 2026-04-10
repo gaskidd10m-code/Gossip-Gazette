@@ -113,19 +113,23 @@ export const CategoryPage = ({ initialArticles = [], initialCategory = null }: {
                                     {transferArticles.map(a => {
                                         const cleanImageUrl = a.coverImage?.split('#')[0] || a.coverImage;
                                         return (
-                                            <Link href={`/article/${a.slug}`} key={a.id} className="block group border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                                                <div className="flex gap-4 items-start">
+                                            <div key={a.id} className="block border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                                                <div className="flex gap-4 items-start mb-3">
                                                     {cleanImageUrl && (
                                                         <div className="w-16 h-16 shrink-0 bg-gray-100 overflow-hidden rounded-sm">
-                                                            <img src={cleanImageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                                            <img src={cleanImageUrl} className="w-full h-full object-cover" />
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <h4 className="font-serif font-bold text-sm leading-tight group-hover:text-red-600 transition-colors line-clamp-2">{a.title}</h4>
-                                                        <span className="text-[9px] uppercase font-black tracking-widest text-gray-400 mt-2 block">Breaking Update</span>
+                                                        <h4 className="font-serif font-bold text-sm leading-tight text-gray-900">{a.title}</h4>
+                                                        <span className="text-[9px] uppercase font-black tracking-widest text-red-700 mt-1 block tracking-widest">Confirmed update</span>
                                                     </div>
                                                 </div>
-                                            </Link>
+                                                <div 
+                                                    dangerouslySetInnerHTML={{ __html: a.content }} 
+                                                    className="text-xs text-gray-700 font-serif leading-relaxed line-clamp-5"
+                                                />
+                                            </div>
                                         );
                                     })}
                                 </div>
