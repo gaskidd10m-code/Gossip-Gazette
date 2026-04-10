@@ -167,7 +167,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
         const allArticles = await api.getArticles();
         if (allArticles.length > 0) {
             setArticles(allArticles);
-            setTransferNews(allArticles.filter(a => a.categoryName.toLowerCase() === 'transfer news' && a.status === 'published').slice(0, 10));
+            setTransferNews(allArticles.filter(a => (a.categoryName.toLowerCase() === 'transfer news' || (a.tags && a.tags.some(t => t.toLowerCase() === 'transfer'))) && a.status === 'published').slice(0, 10));
         }
       } catch (err) {
         console.error('Failed to load fresh data:', err);
@@ -176,22 +176,25 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
     loadData();
   }, []);
 
-  const sportsArticles = articles.filter(a => ['sports', 'sports news'].includes(a.categoryName.toLowerCase()));
-  const techArticles = articles.filter(a => a.categoryName === 'Technology');
+  const isTransfer = (a: Article) => a.categoryName.toLowerCase().includes('transfer') || (a.tags && a.tags.some(t => t.toLowerCase() === 'transfer'));
+  
+  const mainArticles = articles.filter(a => !isTransfer(a));
+  const sportsArticles = mainArticles.filter(a => ['sports', 'sports news'].includes(a.categoryName.toLowerCase()));
+  const techArticles = mainArticles.filter(a => a.categoryName === 'Technology');
 
   if (categoryFilter) return null;
 
   return (
     <div className="w-full py-2 md:py-6">
       <div className="hidden md:block">
-        <BentoGrid articles={articles.slice(0, 4)} />
+        <BentoGrid articles={mainArticles.slice(0, 4)} />
       </div>
 
-      <MobileNewsFeed articles={articles} />
+      <MobileNewsFeed articles={mainArticles} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
         <div className="lg:col-span-8">
-          <SectionTech articles={techArticles.length ? techArticles : articles.slice(2, 5)} />
+          <SectionTech articles={techArticles.length ? techArticles : mainArticles.slice(2, 5)} />
           
           <div className="border-t border-gray-100 my-10"></div>
 
@@ -200,7 +203,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
               <h3 className="font-sans font-black text-xl uppercase tracking-widest text-black">Latest Stories</h3>
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Page 1 of {Math.ceil(articles.length / 10)}</span>
             </div>
-            {articles.slice(3, 15).map(article => (
+            {mainArticles.slice(3, 15).map(article => (
               <ArticleCard key={article.id} article={article} variant="list" />
             ))}
           </div>
