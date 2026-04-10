@@ -103,7 +103,6 @@ const Sidebar = ({ transferNews }: { transferNews: Article[] }) => (
           </div>
         ))}
       </div>
-      </div>
     </div>
 
     <div className="bg-gray-50 p-8 border border-gray-100 rounded-sm">
