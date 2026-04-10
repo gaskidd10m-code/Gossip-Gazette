@@ -35,7 +35,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
 
     // Removed expansion effect logic as we now navigate to separate pages
 
-    const isShortNews = ['transfer news'].includes(article.categoryName.toLowerCase());
+    const isShortNews = article.categoryName.toLowerCase().includes('transfer');
+
+    // Parse focal position from hash (e.g. #pos=50%_50%)
+    const posMatch = article.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
+    const posX = posMatch ? posMatch[1] : '50';
+    const posY = posMatch ? posMatch[2] : '50';
+    const cleanImageUrl = article.coverImage?.split('#')[0] || article.coverImage;
 
     const renderContent = () => {
         if (isShortNews) {
@@ -52,8 +58,14 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
     if (variant === 'hero') {
         return (
             <div ref={contentRef} className="group relative">
-                <div className="overflow-hidden mb-4 rounded-sm shadow-sm">
-                    <img src={article.coverImage} alt={article.title} className="w-full h-56 md:h-[400px] object-cover bg-gray-100 transition-transform duration-700 ${!isShortNews && 'group-hover:scale-105'}" loading="lazy" />
+                <div className="overflow-hidden mb-4 rounded-sm shadow-sm h-56 md:h-[400px]">
+                    <img 
+                        src={cleanImageUrl} 
+                        alt={article.title} 
+                        className={`w-full h-full object-cover bg-gray-100 transition-transform duration-700 ${!isShortNews && 'group-hover:scale-105'}`} 
+                        loading="lazy"
+                        style={{ objectPosition: `${posX}% ${posY}%` }}
+                    />
                 </div>
                 <div className="flex items-center gap-3 text-red-700 text-xs font-bold uppercase tracking-widest mb-4">
                     <Link href={`/category/${article.categoryName.toLowerCase()}`} className="bg-red-50 px-3 py-1.5 rounded hover:bg-red-100 transition-colors">
@@ -86,9 +98,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
     if (variant === 'card') {
         return (
             <div ref={contentRef} className="group block h-full flex flex-col">
-                <Link href={`/article/${article.slug}`} className="overflow-hidden mb-4 rounded-sm shadow-sm">
-                    <img src={article.coverImage} className="w-full h-48 object-contain bg-gray-100 transition-transform duration-500 ${!isShortNews && 'group-hover:scale-105'}" loading="lazy" alt={article.title} />
-                </Link>
+                    <img 
+                        src={cleanImageUrl} 
+                        className={`w-full h-full object-cover transition-transform duration-500 bg-gray-100 ${!isShortNews && 'group-hover:scale-105'}`} 
+                        loading="lazy" 
+                        alt={article.title} 
+                        style={{ objectPosition: `${posX}% ${posY}%` }}
+                    />
                 <span className="text-xs font-bold text-red-700 uppercase mb-2 block">{article.categoryName}</span>
                 <Link href={`/article/${article.slug}`}>
                     <h4 className="font-serif font-bold text-xl mb-3 leading-tight flex-grow hover:text-red-800 transition-colors">
@@ -128,7 +144,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
                         </Link>
                     </div>
                     <Link href={`/article/${article.slug}`} className="w-24 h-24 flex-shrink-0">
-                        <img src={article.coverImage} className="w-full h-full object-cover rounded-sm bg-gray-100" loading="lazy" alt={article.title} />
+                        <img 
+                            src={cleanImageUrl} 
+                            className="w-full h-full object-cover rounded-sm bg-gray-100" 
+                            loading="lazy" 
+                            alt={article.title} 
+                            style={{ objectPosition: `${posX}% ${posY}%` }}
+                        />
                     </Link>
                 </div>
                 {/* Removed in-place content injection */}
@@ -151,11 +173,17 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
 
     // List variant (default)
     return (
-        <div ref={contentRef} className="flex flex-col md:flex-row gap-6 items-start group border-b border-gray-100 pb-8 mb-8 last:border-0 last:pb-0 last:mb-0">
-            <Link href={`/article/${article.slug}`} className="w-full md:w-64 h-40 flex-shrink-0 overflow-hidden rounded-sm shadow-sm">
-                <img src={article.coverImage} className="w-full h-full object-contain bg-gray-100 transition-transform duration-500 ${!isShortNews && 'group-hover:scale-105'}" loading="lazy" alt={article.title} />
+        <div ref={contentRef} className="flex flex-col md:flex-row gap-6 items-start group border-b border-gray-100 pb-8 mb-8 last:border-0 last:pb-0 last:mb-0 w-full">
+            <Link href={`/article/${article.slug}`} className="w-full md:w-64 h-44 flex-shrink-0 overflow-hidden rounded-sm shadow-sm">
+                <img 
+                    src={cleanImageUrl} 
+                    className={`w-full h-full object-cover bg-gray-100 transition-transform duration-500 ${!isShortNews && 'group-hover:scale-105'}`} 
+                    loading="lazy" 
+                    alt={article.title} 
+                    style={{ objectPosition: `${posX}% ${posY}%` }}
+                />
             </Link>
-            <div className="flex-1">
+            <div className="flex-1 w-full">
                 <span className="text-red-700 text-[10px] font-bold uppercase mb-2 block tracking-widest">{article.categoryName}</span>
                 <Link href={`/article/${article.slug}`}>
                     <h4 className="font-serif font-bold text-xl mb-2 leading-tight hover:text-red-800 transition-colors">

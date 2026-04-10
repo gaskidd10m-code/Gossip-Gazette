@@ -49,17 +49,30 @@ const SectionSports = ({ articles }: { articles: Article[] }) => (
         <Link href="/category/sports-news" className="text-red-600 font-bold text-xs hover:underline decoration-2 underline-offset-4">ACCESS HUB →</Link>
       </div>
       <div className="flex overflow-x-auto gap-6 pb-6 hide-scrollbar snap-x">
-        {articles.map(article => (
-          <div key={article.id} className="min-w-[280px] md:min-w-[350px] snap-center group">
-            <div className="relative h-56 w-full mb-4 overflow-hidden rounded-sm border border-gray-800">
-              <img src={article.coverImage} className="absolute inset-0 w-full h-full object-contain bg-gray-900 opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" loading="lazy" alt={article.title} />
-              <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-sm shadow">Top Story</div>
+        {articles.map(article => {
+          const posMatch = article.coverImage?.match(/#pos=([0-9.]+)%_([0-9.]+)%/);
+          const posX = posMatch ? posMatch[1] : '50';
+          const posY = posMatch ? posMatch[2] : '50';
+          const cleanImageUrl = article.coverImage?.split('#')[0] || article.coverImage;
+          
+          return (
+            <div key={article.id} className="min-w-[280px] md:min-w-[350px] snap-center group">
+              <div className="relative h-56 w-full mb-4 overflow-hidden rounded-sm border border-gray-800">
+                <img 
+                  src={cleanImageUrl} 
+                  className="absolute inset-0 w-full h-full object-cover bg-gray-900 opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
+                  loading="lazy" 
+                  alt={article.title} 
+                  style={{ objectPosition: `${posX}% ${posY}%` }}
+                />
+                <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-sm shadow">Top Story</div>
+              </div>
+              <h4 className="font-bold text-lg leading-tight mb-2">{article.title}</h4>
+              <p className="text-xs text-gray-500 mb-3">{new Date(article.publishedAt).toLocaleDateString()}</p>
+              <Link href={`/article/${article.slug}`} className="text-xs text-white font-bold uppercase hover:text-red-400 transition-colors">Read More →</Link>
             </div>
-            <h4 className="font-bold text-lg leading-tight mb-2">{article.title}</h4>
-            <p className="text-xs text-gray-500 mb-3">{new Date(article.publishedAt).toLocaleDateString()}</p>
-            <Link href={`/article/${article.slug}`} className="text-xs text-white font-bold uppercase hover:text-red-400 transition-colors">Read More →</Link>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   </section>

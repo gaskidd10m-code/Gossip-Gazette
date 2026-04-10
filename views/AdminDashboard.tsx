@@ -195,11 +195,13 @@ export const AdminDashboard = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // AdSense Quality Check: 300 word minimum for published articles
-    if (currentArticle.status === 'published' && !['transfer news'].includes(currentArticle.categoryName.toLowerCase())) {
+    const isShortNews = currentArticle.categoryName.toLowerCase().includes('transfer');
+    
+    // AdSense Quality Check: 300 word minimum for published articles (bypassed for short news)
+    if (currentArticle.status === 'published' && !isShortNews) {
       const wordCount = getWordCount(currentArticle.content);
       if (wordCount < 300) {
-        alert(`❌ AdSense Quality Requirement: Article must have at least 300 words to be published (Current: ${wordCount}).\n\nPlease add more original content before publishing.`);
+        alert(`❌ AdSense Quality Requirement: Standard articles must have at least 300 words to be published (Current: ${wordCount}).\n\nPlease add more original content before publishing.`);
         return;
       }
     }
@@ -614,9 +616,16 @@ export const AdminDashboard = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {['transfer news'].includes(currentArticle.categoryName.toLowerCase()) && (
-            <div className="bg-yellow-50 p-4 border border-yellow-200 text-yellow-800 text-sm font-bold rounded-sm mb-4">
-              ⚡ Short News Mode: Required fields are Headline, Content, and Image. This short form news will display without a 'Read More' button on the feed. No minimum word count required!
+          {currentArticle.categoryName.toLowerCase().includes('transfer') && (
+            <div className="bg-red-50 p-6 border-l-4 border-red-700 text-red-900 shadow-sm rounded-sm mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-2xl">⚡</span>
+                <h3 className="text-lg font-black uppercase tracking-tight">Short News Mode Active</h3>
+              </div>
+              <p className="text-sm font-medium opacity-80">
+                Optimized for Transfer News. Only <strong>Headline</strong>, <strong>Content</strong>, and <strong>Image</strong> are required. 
+                Word count limits are disabled and "Read More" will be hidden on the site.
+              </p>
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -643,7 +652,7 @@ export const AdminDashboard = () => {
                 <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 300+ words for AdSense approval.</p>
               </div>
 
-              {!['transfer news'].includes(currentArticle.categoryName.toLowerCase()) && (
+              {!currentArticle.categoryName.toLowerCase().includes('transfer') && (
                 <div>
                   <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Excerpt (Summary)</label>
                   <textarea name="excerpt" rows={3} required value={currentArticle.excerpt} onChange={handleChange} className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none" placeholder="Brief summary for list views..."></textarea>
@@ -670,7 +679,7 @@ export const AdminDashboard = () => {
                 </select>
               </div>
 
-              {!['transfer news'].includes(currentArticle.categoryName.toLowerCase()) && (
+              {!currentArticle.categoryName.toLowerCase().includes('transfer') && (
                 <>
                   <div>
                     <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Tags (Comma Separated)</label>
@@ -706,47 +715,58 @@ export const AdminDashboard = () => {
                   <input name="coverImage" value={currentArticle.coverImage} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
                 )}
 
-                <div className="mt-4 flex flex-col gap-3 bg-gray-50 border border-gray-200 p-4 rounded-sm">
-                  <div className="flex justify-between items-center">
-                    <label className="text-xs font-bold uppercase text-gray-500">Image Focal Point — Click on the image to set focus</label>
-                    <button type="button" onClick={() => { setImagePosX(50); setImagePosY(50); }} className="text-[10px] text-blue-600 font-bold hover:underline">Reset Center</button>
-                  </div>
-                  <p className="text-[11px] text-gray-400">The red crosshair shows where the image will be anchored when cropped on the site.</p>
+                <div className="mt-4 bg-white border border-gray-200 p-5 rounded-sm shadow-sm ring-1 ring-black/5">
+                   <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                     <label className="text-xs font-black uppercase tracking-widest text-gray-600">Advanced Positioning</label>
+                     <div className="text-[10px] bg-black text-white px-2 py-0.5 rounded font-mono">
+                       {imagePosX}% / {imagePosY}%
+                     </div>
+                   </div>
+                   
+                   <div className="mb-6">
+                     <p className="text-[10px] text-gray-400 uppercase font-bold mb-3 text-center">Select Focal Area</p>
+                     <div className="grid grid-cols-3 gap-2 max-w-[180px] mx-auto">
+                        {[
+                          { l: 'TL', x: 0, y: 0 }, { l: 'TC', x: 50, y: 0 }, { l: 'TR', x: 100, y: 0 },
+                          { l: 'ML', x: 0, y: 50 }, { l: 'MC', x: 50, y: 50 }, { l: 'MR', x: 100, y: 50 },
+                          { l: 'BL', x: 0, y: 100 }, { l: 'BC', x: 50, y: 100 }, { l: 'BR', x: 100, y: 100 }
+                        ].map((pos) => (
+                          <button
+                            key={pos.l}
+                            type="button"
+                            onClick={() => { setImagePosX(pos.x); setImagePosY(pos.y); }}
+                            className={`h-10 border rounded-sm transition-all flex items-center justify-center text-[10px] font-bold ${imagePosX === pos.x && imagePosY === pos.y ? 'bg-black text-white border-black shadow-md scale-105' : 'bg-gray-50 border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600'}`}
+                            title={pos.l}
+                          >
+                            <div className={`w-1.5 h-1.5 rounded-full ${imagePosX === pos.x && imagePosY === pos.y ? 'bg-white' : 'bg-gray-300'}`}></div>
+                          </button>
+                        ))}
+                     </div>
+                   </div>
+
+                   <div className="space-y-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-bold text-gray-400 w-4">X:</span>
+                        <input type="range" min="0" max="100" value={imagePosX} onChange={(e) => setImagePosX(Number(e.target.value))} className="flex-grow accent-black h-1" />
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-bold text-gray-400 w-4">Y:</span>
+                        <input type="range" min="0" max="100" value={imagePosY} onChange={(e) => setImagePosY(Number(e.target.value))} className="flex-grow accent-black h-1" />
+                      </div>
+                   </div>
                 </div>
 
                 {currentArticle.coverImage && (
-                  <div 
-                    className="mt-3 relative w-full overflow-hidden rounded-sm border-2 border-gray-300 cursor-crosshair group"
-                    style={{ height: '250px' }}
-                    onClick={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-                      const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-                      setImagePosX(Math.max(0, Math.min(100, x)));
-                      setImagePosY(Math.max(0, Math.min(100, y)));
-                    }}
-                  >
-                    {/* Full unclipped image for clicking */}
+                  <div className="mt-4 group relative overflow-hidden rounded-sm border-2 border-gray-200 bg-gray-100 aspect-video shadow-inner">
                     <img 
                       src={currentArticle.coverImage} 
-                      alt="Click to set focal point" 
-                      className="w-full h-full object-cover"
+                      alt="Crop Preview" 
+                      className="w-full h-full object-cover transition-all duration-300"
                       style={{ objectPosition: `${imagePosX}% ${imagePosY}%` }}
-                      draggable={false}
                     />
-                    {/* Crosshair overlay */}
-                    <div 
-                      className="absolute pointer-events-none"
-                      style={{ left: `${imagePosX}%`, top: `${imagePosY}%`, transform: 'translate(-50%, -50%)' }}
-                    >
-                      <div className="w-8 h-8 rounded-full border-2 border-red-600 bg-red-600/20 shadow-lg">
-                        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-red-600 -translate-x-1/2"></div>
-                        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-600 -translate-y-1/2"></div>
-                      </div>
-                    </div>
-                    {/* Position label */}
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded">
-                      X: {imagePosX}% &nbsp; Y: {imagePosY}%
+                    <div className="absolute inset-0 pointer-events-none border-[12px] border-black/10 mix-blend-overlay"></div>
+                    <div className="absolute bottom-3 left-3 bg-black/80 text-white text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded shadow-lg backdrop-blur-sm">
+                      Live Preview &bull; {imagePosX}% {imagePosY}%
                     </div>
                   </div>
                 )}
