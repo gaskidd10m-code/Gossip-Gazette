@@ -46,7 +46,7 @@ const SectionSports = ({ articles }: { articles: Article[] }) => (
     <div className="w-full">
       <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
         <h3 className="font-sans font-black text-2xl uppercase tracking-widest text-white">Sports Center</h3>
-        <Link href="/sports" className="text-red-600 font-bold text-xs hover:underline decoration-2 underline-offset-4">ACCESS HUB →</Link>
+        <Link href="/category/sports-news" className="text-red-600 font-bold text-xs hover:underline decoration-2 underline-offset-4">ACCESS HUB →</Link>
       </div>
       <div className="flex overflow-x-auto gap-6 pb-6 hide-scrollbar snap-x">
         {articles.map(article => (

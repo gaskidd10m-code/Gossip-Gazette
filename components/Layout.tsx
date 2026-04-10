@@ -64,7 +64,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           <nav className="hidden md:flex items-center gap-8 mx-8 order-2">
             <ul className="flex flex-row font-sans font-bold text-xs tracking-[0.2em] uppercase gap-8">
               <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>Home</Link></li>
-              <li><Link href="/sports" className={`hover:text-red-700 transition-colors ${pathname === '/sports' ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>Sports News</Link></li>
+              <li><Link href="/category/sports-news" className={`hover:text-red-700 transition-colors ${pathname === '/category/sports-news' ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>Sports News</Link></li>
               {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link href={`/category/${cat.slug}`} className={`hover:text-red-700 transition-colors ${pathname === `/category/${cat.slug}` ? 'text-red-700 border-b-2 border-red-700 pb-1' : ''}`}>{cat.name}</Link>
@@ -108,7 +108,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
           <div className="w-full px-4 py-5">
             <ul className="flex flex-row items-center gap-8 font-sans font-black text-[14px] tracking-widest uppercase">
               <li><Link href="/" className={`hover:text-red-700 transition-colors ${pathname === '/' ? 'text-red-700' : ''}`}>Home</Link></li>
-              <li><Link href="/sports" className={`hover:text-red-700 transition-colors ${pathname === '/sports' ? 'text-red-700' : ''}`}>Sports News</Link></li>
+              <li><Link href="/category/sports-news" className={`hover:text-red-700 transition-colors ${pathname === '/category/sports-news' ? 'text-red-700' : ''}`}>Sports News</Link></li>
               <li><Link href="/category/technology" className={`hover:text-red-700 transition-colors ${pathname === '/category/technology' ? 'text-red-700' : ''}`}>Technology</Link></li>
               <li><Link href="/category/world-news" className={`hover:text-red-700 transition-colors ${pathname === '/category/world-news' ? 'text-red-700' : ''}`}>World News</Link></li>
               {categories.filter(c => c.slug !== 'technology' && c.slug !== 'world-news').map((cat) => (

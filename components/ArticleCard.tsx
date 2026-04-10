@@ -35,7 +35,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, variant = 'li
 
     // Removed expansion effect logic as we now navigate to separate pages
 
-    const isShortNews = ['transfer news', 'sports news'].includes(article.categoryName.toLowerCase());
+    const isShortNews = ['transfer news'].includes(article.categoryName.toLowerCase());
 
     const renderContent = () => {
         if (isShortNews) {
