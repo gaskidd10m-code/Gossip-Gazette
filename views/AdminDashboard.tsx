@@ -50,6 +50,7 @@ export const AdminDashboard = () => {
   const [useImageUpload, setUseImageUpload] = useState(false);
   const [imagePosX, setImagePosX] = useState(50);
   const [imagePosY, setImagePosY] = useState(50);
+  const [isShortMode, setIsShortMode] = useState(false);
 
   // Quill Refs
   const quillRef = useRef<HTMLDivElement>(null);
@@ -156,6 +157,7 @@ export const AdminDashboard = () => {
     setImagePosX(posMatch ? Number(posMatch[1]) : 50);
     setImagePosY(posMatch ? Number(posMatch[2]) : 50);
     setCurrentArticle({ ...article, coverImage: article.coverImage?.split('#')[0] || article.coverImage });
+    setIsShortMode(article.categoryName.toLowerCase().includes('transfer'));
     setUseImageUpload(false);
     setIsEditing(true);
   };
@@ -168,6 +170,7 @@ export const AdminDashboard = () => {
     });
     setImagePosX(50);
     setImagePosY(50);
+    setIsShortMode(false);
     setUseImageUpload(false);
     setIsEditing(true);
   };
@@ -181,6 +184,7 @@ export const AdminDashboard = () => {
     });
     setImagePosX(50);
     setImagePosY(50);
+    setIsShortMode(true);
     setUseImageUpload(false);
     setIsEditing(true);
   };
@@ -195,7 +199,7 @@ export const AdminDashboard = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const isShortNews = currentArticle.categoryName.toLowerCase().includes('transfer');
+    const isShortNews = isShortMode || currentArticle.categoryName.toLowerCase().includes('transfer');
     
     // AdSense Quality Check: 300 word minimum for published articles (bypassed for short news)
     if (currentArticle.status === 'published' && !isShortNews) {
@@ -245,7 +249,9 @@ export const AdminDashboard = () => {
       }));
     } else if (name === 'categoryId') {
       const cat = categories.find(c => String(c.id) === String(value));
-      setCurrentArticle(prev => ({ ...prev, categoryId: String(value), categoryName: cat?.name || '' }));
+      const catName = cat?.name || '';
+      setCurrentArticle(prev => ({ ...prev, categoryId: String(value), categoryName: catName }));
+      setIsShortMode(catName.toLowerCase().includes('transfer'));
     } else if (name === 'tags') {
       // Simple comma separated handling
       setCurrentArticle(prev => ({ ...prev, tags: value.split(',').map(t => t.trim()) }));
@@ -616,16 +622,16 @@ export const AdminDashboard = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {currentArticle.categoryName.toLowerCase().includes('transfer') && (
-            <div className="bg-red-50 p-6 border-l-4 border-red-700 text-red-900 shadow-sm rounded-sm mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">⚡</span>
+          {isShortMode && (
+            <div className="bg-red-50 p-6 border-l-4 border-red-700 text-red-900 shadow-sm rounded-sm mb-6 flex items-start gap-4">
+              <span className="text-3xl mt-1">⚡</span>
+              <div>
                 <h3 className="text-lg font-black uppercase tracking-tight">Short News Mode Active</h3>
+                <p className="text-sm font-medium opacity-80 mt-1">
+                  Optimized for Transfer News. Only <strong>Headline</strong>, <strong>Content</strong>, and <strong>Image</strong> are required. 
+                  Word count limits are disabled and "Read More" will be hidden on the site.
+                </p>
               </div>
-              <p className="text-sm font-medium opacity-80">
-                Optimized for Transfer News. Only <strong>Headline</strong>, <strong>Content</strong>, and <strong>Image</strong> are required. 
-                Word count limits are disabled and "Read More" will be hidden on the site.
-              </p>
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -639,9 +645,11 @@ export const AdminDashboard = () => {
               <div>
                 <div className="flex justify-between items-end mb-1">
                   <label className="block text-xs font-bold uppercase text-gray-500">Body Content</label>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${getWordCount(currentArticle.content) >= 300 ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-400'}`}>
-                    Word Count: {getWordCount(currentArticle.content)} / 300 (Target)
-                  </span>
+                  {!isShortMode && (
+                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${getWordCount(currentArticle.content) >= 300 ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-400'}`}>
+                      Word Count: {getWordCount(currentArticle.content)} / 300 (Target)
+                    </span>
+                  )}
                 </div>
                 <div className="bg-white border border-gray-300 rounded-sm">
                   <style>{`
@@ -652,7 +660,7 @@ export const AdminDashboard = () => {
                 <p className="text-xs text-gray-400 mt-2">Use the toolbar to format your text. Articles must be 300+ words for AdSense approval.</p>
               </div>
 
-              {!currentArticle.categoryName.toLowerCase().includes('transfer') && (
+              {!isShortMode && (
                 <div>
                   <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Excerpt (Summary)</label>
                   <textarea name="excerpt" rows={3} required value={currentArticle.excerpt} onChange={handleChange} className="w-full border border-gray-300 p-3 text-sm rounded-sm focus:border-black outline-none" placeholder="Brief summary for list views..."></textarea>
@@ -679,7 +687,7 @@ export const AdminDashboard = () => {
                 </select>
               </div>
 
-              {!currentArticle.categoryName.toLowerCase().includes('transfer') && (
+              {!isShortMode && (
                 <>
                   <div>
                     <label className="block text-xs font-bold uppercase mb-1 text-gray-500">Tags (Comma Separated)</label>
@@ -715,61 +723,62 @@ export const AdminDashboard = () => {
                   <input name="coverImage" value={currentArticle.coverImage} onChange={handleChange} className="w-full border border-gray-300 p-2 text-sm rounded-sm bg-white" placeholder="https://..." />
                 )}
 
-                <div className="mt-4 bg-white border border-gray-200 p-5 rounded-sm shadow-sm ring-1 ring-black/5">
-                   <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                     <label className="text-xs font-black uppercase tracking-widest text-gray-600">Advanced Positioning</label>
-                     <div className="text-[10px] bg-black text-white px-2 py-0.5 rounded font-mono">
-                       {imagePosX}% / {imagePosY}%
-                     </div>
-                   </div>
-                   
-                   <div className="mb-6">
-                     <p className="text-[10px] text-gray-400 uppercase font-bold mb-3 text-center">Select Focal Area</p>
-                     <div className="grid grid-cols-3 gap-2 max-w-[180px] mx-auto">
-                        {[
-                          { l: 'TL', x: 0, y: 0 }, { l: 'TC', x: 50, y: 0 }, { l: 'TR', x: 100, y: 0 },
-                          { l: 'ML', x: 0, y: 50 }, { l: 'MC', x: 50, y: 50 }, { l: 'MR', x: 100, y: 50 },
-                          { l: 'BL', x: 0, y: 100 }, { l: 'BC', x: 50, y: 100 }, { l: 'BR', x: 100, y: 100 }
-                        ].map((pos) => (
-                          <button
-                            key={pos.l}
-                            type="button"
-                            onClick={() => { setImagePosX(pos.x); setImagePosY(pos.y); }}
-                            className={`h-10 border rounded-sm transition-all flex items-center justify-center text-[10px] font-bold ${imagePosX === pos.x && imagePosY === pos.y ? 'bg-black text-white border-black shadow-md scale-105' : 'bg-gray-50 border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600'}`}
-                            title={pos.l}
-                          >
-                            <div className={`w-1.5 h-1.5 rounded-full ${imagePosX === pos.x && imagePosY === pos.y ? 'bg-white' : 'bg-gray-300'}`}></div>
-                          </button>
-                        ))}
+                <div className="mt-4 bg-white border border-gray-200 p-6 rounded-sm shadow-md ring-1 ring-black/5">
+                   <div className="mb-4">
+                     <label className="text-xs font-black uppercase tracking-widest text-gray-500 block mb-4 border-b pb-2">Advanced Positioning</label>
+                     <p className="text-[10px] text-gray-400 font-bold mb-4">Adjust sliders to center the focus point on the image.</p>
+                     
+                     <div className="space-y-6">
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-[10px] font-black uppercase text-gray-400">
+                             <span>Horizontal Align</span>
+                             <span className="text-black">{imagePosX}%</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" max="100" 
+                            value={imagePosX} 
+                            onChange={(e) => setImagePosX(Number(e.target.value))} 
+                            className="w-full accent-red-700 h-1" 
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-[10px] font-black uppercase text-gray-400">
+                             <span>Vertical Align</span>
+                             <span className="text-black">{imagePosY}%</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" max="100" 
+                            value={imagePosY} 
+                            onChange={(e) => setImagePosY(Number(e.target.value))} 
+                            className="w-full accent-red-700 h-1" 
+                          />
+                        </div>
                      </div>
                    </div>
 
-                   <div className="space-y-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-bold text-gray-400 w-4">X:</span>
-                        <input type="range" min="0" max="100" value={imagePosX} onChange={(e) => setImagePosX(Number(e.target.value))} className="flex-grow accent-black h-1" />
+                   {currentArticle.coverImage && (
+                    <div className="mt-6 relative h-56 w-full overflow-hidden rounded-sm border-2 border-gray-100 bg-gray-50 shadow-inner group">
+                      <img 
+                        src={currentArticle.coverImage} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover transition-all duration-200"
+                        style={{ objectPosition: `${imagePosX}% ${imagePosY}%` }}
+                      />
+                      {/* Focal Point Indicator (Crosshair) */}
+                      <div className="absolute inset-0 pointer-events-none opacity-40 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute w-full h-px bg-red-600 top-1/2 -translate-y-1/2 shadow-sm"></div>
+                        <div className="absolute h-full w-px bg-red-600 left-1/2 -translate-x-1/2 shadow-sm"></div>
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border border-red-600 bg-red-600/10"></div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-bold text-gray-400 w-4">Y:</span>
-                        <input type="range" min="0" max="100" value={imagePosY} onChange={(e) => setImagePosY(Number(e.target.value))} className="flex-grow accent-black h-1" />
+                      <div className="absolute top-3 right-3 bg-black/80 text-white text-[9px] font-bold px-2 py-1 rounded shadow-lg">
+                        {imagePosX}% / {imagePosY}%
                       </div>
-                   </div>
-                </div>
-
-                {currentArticle.coverImage && (
-                  <div className="mt-4 group relative overflow-hidden rounded-sm border-2 border-gray-200 bg-gray-100 aspect-video shadow-inner">
-                    <img 
-                      src={currentArticle.coverImage} 
-                      alt="Crop Preview" 
-                      className="w-full h-full object-cover transition-all duration-300"
-                      style={{ objectPosition: `${imagePosX}% ${imagePosY}%` }}
-                    />
-                    <div className="absolute inset-0 pointer-events-none border-[12px] border-black/10 mix-blend-overlay"></div>
-                    <div className="absolute bottom-3 left-3 bg-black/80 text-white text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded shadow-lg backdrop-blur-sm">
-                      Live Preview &bull; {imagePosX}% {imagePosY}%
                     </div>
-                  </div>
-                )}
+                   )}
+                </div>
               </div>
             </div>
           </div>
