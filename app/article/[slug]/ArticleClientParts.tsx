@@ -163,20 +163,7 @@ export default function ArticleClientParts({ article, showShareOnly, showComment
           <button onClick={() => handleShare('twitter')} className="w-10 h-10 rounded-full bg-gray-100 hover:bg-[#1DA1F2] hover:text-white flex items-center justify-center transition-colors font-serif font-bold text-sm" title="Share on Twitter">t</button>
           <button onClick={() => handleShare('linkedin')} className="w-10 h-10 rounded-full bg-gray-100 hover:bg-[#0A66C2] hover:text-white flex items-center justify-center transition-colors font-serif font-bold text-sm" title="Share on LinkedIn">in</button>
         </div>
-        {/* Admin Quick Edit */}
-        {isAdmin && (
-          <div className="mt-6">
-            <Link
-              href={`/admin?editId=${article.id}`}
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              Edit Article
-            </Link>
-          </div>
-        )}
+        {/* Admin Quick Edit removed */}
       </div>
     );
   }
