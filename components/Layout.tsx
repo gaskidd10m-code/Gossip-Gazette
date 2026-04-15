@@ -39,7 +39,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, categories }) => {
     }
   };
 
-  const isAuthenticated = typeof window !== 'undefined' ? api.checkAuth() : false;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(api.checkAuth());
+  }, []);
 
   const categoryOrder = ['World News', 'Sports News', 'Technology', 'Entertainment and Trends'];
   const sortedCategories = [...categories].sort((a, b) => {
