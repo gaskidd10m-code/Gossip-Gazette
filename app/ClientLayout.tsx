@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Layout } from '../components/Layout';
+import { NavigationProgress } from '../components/NavigationProgress';
 import { Category } from '../types';
 import { api } from '../services/api';
-import PageProgressBar from '../components/PageProgressBar';
 
 export default function ClientLayout({ 
   children, 
@@ -19,7 +19,6 @@ export default function ClientLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // Background refresh for freshness
     const loadData = async () => {
       try {
         const freshCats = await api.getCategories();
@@ -36,19 +35,13 @@ export default function ClientLayout({
     }
   }, []);
 
-  // Hide the global website Layout on the admin and login routes
   if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/login'))) {
-    return (
-      <>
-        <PageProgressBar />
-        {children}
-      </>
-    );
+    return <>{children}</>;
   }
 
   return (
     <>
-      <PageProgressBar />
+      <NavigationProgress />
       <Layout categories={categories}>{children}</Layout>
     </>
   );

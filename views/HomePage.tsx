@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Article } from '../types';
+import { Article, SportsNews } from '../types';
 import { api } from '../services/api';
 import { ArticleCard } from '../components/ArticleCard';
-
-// --- Layout Components ---
 
 const BentoGrid = ({ articles }: { articles: Article[] }) => {
   if (articles.length < 3) return null;
@@ -77,7 +75,7 @@ const SectionSports = ({ articles }: { articles: Article[] }) => (
   </section>
 );
 
-const Sidebar = ({ articles }: { articles: Article[] }) => (
+const Sidebar = ({ news }: { news: SportsNews[] }) => (
   <aside className="space-y-12">
     <div className="bg-[#0a0a0a] text-white p-8 md:p-10 border-l-4 border-red-700 shadow-2xl relative overflow-hidden group">
       <div className="absolute -top-10 -right-10 opacity-[0.03] scale-150 transform rotate-12 transition-transform duration-1000 group-hover:rotate-45">
@@ -93,7 +91,7 @@ const Sidebar = ({ articles }: { articles: Article[] }) => (
       </div>
 
       <div className="space-y-10 relative z-10">
-        {articles.slice(0, 5).map((item, idx) => (
+        {news.slice(0, 10).map((item, idx) => (
           <div key={item.id} className="relative pl-12 group/item border-b border-gray-900 last:border-0 pb-10 last:pb-0">
             <span className="absolute left-0 top-0 text-7xl font-sans font-black text-white/5 group-hover/item:text-red-700/20 transition-all duration-500 leading-none select-none">
               {idx + 1}
@@ -104,12 +102,12 @@ const Sidebar = ({ articles }: { articles: Article[] }) => (
               </h5>
               <div 
                 dangerouslySetInnerHTML={{ __html: item.content }} 
-                className="text-sm text-gray-400 font-serif leading-relaxed line-clamp-4 prose prose-invert prose-sm opacity-80 group-hover/item:opacity-100 transition-opacity"
+                className="text-sm text-gray-400 font-serif leading-relaxed prose prose-invert prose-sm opacity-80 group-hover/item:opacity-100 transition-opacity"
               />
               <div className="flex items-center gap-4 mt-6">
                 <span className="h-px bg-red-700 w-8"></span>
                 <span className="text-gray-600 text-[10px] font-black uppercase tracking-[0.2em]">
-                  {new Date(item.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                 </span>
               </div>
             </div>
@@ -153,11 +151,9 @@ const MobileNewsFeed = ({ articles }: { articles: Article[] }) => {
   );
 };
 
-// --- Page Component ---
-
 export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[] }) => {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
-  const [transferNews, setTransferNews] = useState<Article[]>([]);
+  const [flashNews, setFlashNews] = useState<SportsNews[]>([]);
   const searchParams = useSearchParams();
   const categoryFilter = searchParams?.get('cat');
 
@@ -173,11 +169,9 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
   useEffect(() => {
     const loadData = async () => {
       try {
-        const allArticles = await api.getArticles();
-        if (allArticles.length > 0) {
-            setArticles(allArticles);
-            setTransferNews(allArticles.filter(a => (a.categoryName.toLowerCase().includes('transfer') || (a.tags && a.tags.some(t => t.toLowerCase() === 'transfer'))) && a.status === 'published').slice(0, 10));
-        }
+        const [allArticles, radar] = await Promise.all([api.getArticles(), api.getSportsNews()]);
+        setArticles(allArticles);
+        setFlashNews(radar);
       } catch (err) {
         console.error('Failed to load fresh data:', err);
       }
@@ -220,7 +214,7 @@ export const HomePage = ({ initialArticles = [] }: { initialArticles?: Article[]
 
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
-            <Sidebar articles={transferNews} />
+            <Sidebar news={flashNews} />
           </div>
         </div>
       </div>

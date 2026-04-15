@@ -1,10 +1,11 @@
-export const dynamic = 'force-dynamic';
 import React from 'react';
 import type { Metadata } from 'next';
 import ClientLayout from './ClientLayout';
 import './globals.css';
 import { db } from '../lib/db';
 import { Category } from '../types';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: {

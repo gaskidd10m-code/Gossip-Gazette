@@ -1,8 +1,7 @@
 import { Pool } from '@neondatabase/serverless';
 
 const pool = new Pool({
-  connectionString: process.env.NEON_DATABASE_URL,
-  // These settings allow the event loop to empty so Next.js static workers can gracefully exit
+  connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL,
   idleTimeoutMillis: 100,
   max: 5,
   allowExitOnIdle: true
@@ -14,3 +13,5 @@ export const db = {
     return rows as T[];
   }
 };
+
+export const dynamic = 'force-dynamic';

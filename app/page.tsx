@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 import { Suspense } from 'react';
 import { HomePage } from '../views/HomePage';
 import { db } from '../lib/db';
@@ -15,7 +14,10 @@ async function getInitialArticles(): Promise<Article[]> {
        WHERE status = 'published'
        ORDER BY published_at DESC`
     );
-    return rows;
+    return rows.map(r => ({
+      ...r,
+      publishedAt: r.publishedAt instanceof Date ? r.publishedAt.toISOString() : r.publishedAt
+    })) as Article[];
   } catch (error) {
     console.error('Error fetching articles for home page:', error);
     return [];
@@ -31,3 +33,5 @@ export default async function Page() {
     </Suspense>
   );
 }
+
+export const dynamic = 'force-dynamic';
