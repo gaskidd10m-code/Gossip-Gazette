@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Layout } from '../components/Layout';
 import { Category } from '../types';
 import { api } from '../services/api';
+import PageProgressBar from '../components/PageProgressBar';
 
 export default function ClientLayout({ 
   children, 
@@ -37,8 +38,18 @@ export default function ClientLayout({
 
   // Hide the global website Layout on the admin and login routes
   if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/login'))) {
-    return <>{children}</>;
+    return (
+      <>
+        <PageProgressBar />
+        {children}
+      </>
+    );
   }
 
-  return <Layout categories={categories}>{children}</Layout>;
+  return (
+    <>
+      <PageProgressBar />
+      <Layout categories={categories}>{children}</Layout>
+    </>
+  );
 }

@@ -56,6 +56,7 @@ export const AdminDashboard = () => {
   // Quill Refs
   const quillRef = useRef<HTMLDivElement>(null);
   const editorInstanceRef = useRef<Quill | null>(null);
+  const [editorReady, setEditorReady] = useState(false);
 
   useEffect(() => {
     // Auth Check
@@ -81,6 +82,7 @@ export const AdminDashboard = () => {
   // Init Quill when modal opens
   useEffect(() => {
     if (isEditing && quillRef.current && !editorInstanceRef.current) {
+      setEditorReady(false);
       import('quill').then((QuillModule) => {
         const Quill = QuillModule.default;
         
@@ -104,6 +106,7 @@ export const AdminDashboard = () => {
         });
         
         editorInstanceRef.current = quill;
+        setEditorReady(true); // hide the loading overlay
 
         // Load initial content
         quill.root.innerHTML = currentArticle.content || '';
@@ -119,12 +122,14 @@ export const AdminDashboard = () => {
         });
       }).catch(err => {
         console.error("Failed to load Quill editor", err);
+        setEditorReady(true); // don't block the UI on error
       });
     }
 
     // Cleanup when modal closes
     return () => {
       editorInstanceRef.current = null;
+      setEditorReady(false);
     };
   }, [isEditing]); // Only re-run when modal opens/closes
 
@@ -704,14 +709,11 @@ export const AdminDashboard = () => {
                     <style>{`
                       ${currentArticle.categoryName !== 'Entertainment and Trends' ? '.ql-video { display: none !important; }' : ''}
                     `}</style>
-                    {!editorInstanceRef.current && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 z-10">
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          <span className="text-xs font-bold uppercase tracking-widest">Initializing Editor...</span>
+                    {!editorReady && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+                        <div className="flex items-center gap-3 text-gray-400">
+                          <div style={{ width: 20, height: 20, border: '3px solid #e5e7eb', borderTopColor: '#b91c1c', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                          <span className="text-xs font-bold uppercase tracking-widest">Loading editor...</span>
                         </div>
                       </div>
                     )}

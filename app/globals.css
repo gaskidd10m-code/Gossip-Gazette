@@ -23,6 +23,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Spinner ─────────────────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Ticker Animation ────────────────────────────────────────────── */
 @keyframes ticker {
   0%   { transform: translateX(100%); }

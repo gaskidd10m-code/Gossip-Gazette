@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "next dev --port 3000",
+    "dev:full": "concurrently \"next dev --port 3000\" \"tsx --watch server/index.ts\" --names \"next,api\" --prefix-colors \"cyan,yellow\"",
     "server": "tsx --watch server/index.ts",
     "build": "next build",
     "start": "next start --port 3000",
